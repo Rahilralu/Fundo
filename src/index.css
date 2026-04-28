@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-500: #7B6EE8;
+  --color-brand-600: #5A4FCC;
+  --color-bg-main: #0D0B1A;
+  --color-bg-card: #12102A;
+  --color-bg-elevated: #1A1730;
+  --color-border-main: #2D2860;
+  
+  --font-sans: "Manrope", sans-serif;
+  --font-heading: "Syne", sans-serif;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-bg-main);
+    color: white;
+    font-family: var(--font-sans);
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
+}
