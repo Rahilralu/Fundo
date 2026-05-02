@@ -5,6 +5,7 @@ import { pool } from './src/config/psql.js';
 import rateLimit from "express-rate-limit";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import routes from "./src/routes/index.js"
 dotenv.config();
 
 const app = express();
@@ -23,7 +24,7 @@ app.use(limiter);
 
 app.use(cors({
     origin: [
-        'http://localhost:5173/'
+        'http://localhost:5173'
     ],
     credentials: true
 }));
@@ -41,7 +42,7 @@ app.get('/', async (req, res) => {
   }
 });
 
-// app.use('/api',routes);
+app.use('/api',routes);
 
 const PORT = process.env.PORT || 5000;
 

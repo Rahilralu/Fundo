@@ -4,7 +4,7 @@ export function generateRefreshToken(userId) {
     return jwt.sign(
         { userId },
         process.env.REFRESH_TOKEN_SECRET,
-        { expiresIn: '30d' }
+        { expiresIn: '7d' }
     );
 }
 

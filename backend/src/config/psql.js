@@ -1,13 +1,4 @@
-import { Pool } from "pg";
+import { PrismaClient } from '../generated/prisma'
 
-export const pool = new Pool({
-  host: 'localhost',
-  user: 'postgres',
-  password: 'RIFA',
-  database: 'fundo',
-  port: 5432,
+export const prisma = new PrismaClient()
 
-  max: 10,                // max connections
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
-});
