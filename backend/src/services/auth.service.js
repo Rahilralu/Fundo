@@ -1,4 +1,4 @@
-import prisma from "../config/prisma.js"
+import prisma from "../config/psql.js"
 import bcrypt from "bcryptjs"
 import crypto from "crypto"
 import { generateAccessToken, generateRefreshToken } from "../utils/tokens.js"
@@ -83,55 +83,64 @@ export const loginUser = async ({ email,password }) => {
     }
 }
 
-
 export const refreshUserToken = async (oldToken) => {
-    try{
-        if(!oldToken){
-            throw { status: 401, message: "No refresh token" }
-        }
-
-        const tokenhash = hashToken(oldToken);
-
-        const stored = await prisma.refresh_tokens.findUnique({
-            where: { token_hash: tokenhash },
-            include: { users: true }
-        })
-
-        if (!stored || stored.expires_at < new Date()) {
-            throw { status: 401, message: "Token expired or revoked" }
-        }
-        await prisma.refresh_tokens.deleteMany({
-            where:{ token_hash: tokenhash}
-        })
-
-        const newAccessToken  = generateAccessToken(
-            stored.users.id, 
-            stored.users.email, 
-            stored.users.role
-        )
-        const newRefreshToken = generateRefreshToken(
-            stored.users.id, 
-            stored.users.email, 
-            stored.users.role
-        )
-
-        await prisma.refresh_tokens.create({
-            data: {
-            user_id:    stored.users.id,
-            token_hash: hashToken(newRefreshToken),
-            expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-            }
-        })
-        return { newAccessToken,newRefreshToken}
+  try {
+    if (!oldToken) {
+      throw { status: 401, message: "No refresh token" }
     }
-    catch(err){
-        console.log(err);
-        throw err.status ? err : { status: 500, message: "Server error" }
+
+    const tokenhash = hashToken(oldToken);
+
+    const stored = await prisma.refresh_tokens.findUnique({
+      where: { token_hash: tokenhash },
+      include: { users: true }
+    });
+
+    if (!stored || stored.expires_at < new Date()) {
+      throw { status: 401, message: "Token expired or revoked" }
     }
+
+    const newAccessToken = generateAccessToken(
+      stored.users.id,
+      stored.users.email,
+      stored.users.role
+    );
+    const newRefreshToken = generateRefreshToken(
+      stored.users.id,
+      stored.users.email,
+      stored.users.role
+    );
+
+    // ✅ atomic — delete old and create new in one transaction
+    await prisma.$transaction([
+    prisma.refresh_tokens.deleteMany({
+        where: { token_hash: tokenhash }  // soft — won't throw if missing
+    }),
+    prisma.refresh_tokens.upsert({
+        where: { token_hash: hashToken(newRefreshToken) },
+        update: {
+        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+        },
+        create: {
+        user_id: stored.users.id,
+        token_hash: hashToken(newRefreshToken),
+        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+        }
+    })
+    ]);
+
+    return { newAccessToken, newRefreshToken };
+
+  } catch (err) {
+    console.log(err);
+    throw err.status ? err : { status: 500, message: "Server error" }
+  }
 }
 
 export const logoutUser = async (token) => {
-  if (!token) return
+  if (!token){
+    throw { status: 401, message: "No refresh token" }
+    }
 
   await prisma.refresh_tokens.deleteMany({
     where: { token_hash: hashToken(token) }

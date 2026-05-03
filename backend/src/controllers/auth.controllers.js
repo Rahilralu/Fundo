@@ -50,7 +50,7 @@ export const login = async (req, res) => {
 
 export const refresh = async (req, res) => {
   try {
-    const oldToken = req.cookies.refreshToken
+    const oldToken = req.cookies.refresh_token
 
     const { newAccessToken, newRefreshToken } =
       await refreshUserToken(oldToken)
@@ -77,11 +77,16 @@ export const refresh = async (req, res) => {
 
 export const logout = async (req, res) => {
   try {
-    const token = req.cookies.refreshToken
+    const token = req.cookies.refresh_token
 
     await logoutUser(token)
 
-    res.clearCookie("refresh_token")
+    res.clearCookie("refresh_token", {
+      httpOnly: true,
+      sameSite: "strict",
+      secure: false,
+      path: "/"
+    })
 
     return res.json({
       success: true,
@@ -97,7 +102,7 @@ export const logout = async (req, res) => {
 
 export const me = async (req, res) => {
   try {
-    const user = await getMe(req.user.id)
+    const user = await getMe(req.user.userId);
 
     return res.json({
       success: true,

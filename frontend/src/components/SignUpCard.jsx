@@ -6,7 +6,7 @@ import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Checkbox } from './ui/checkbox';
 
-export default function SignUpCard({ onLogin, onSwitchToLogin }) {
+export default function SignUpCard({ onRegister, onSwitchToLogin }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -20,8 +20,7 @@ export default function SignUpCard({ onLogin, onSwitchToLogin }) {
       setTimeout(() => setShake(false), 500);
       return;
     }
-    // Simulate signup -> auto login
-    onLogin(email);
+    onRegister(name, email, password); // ← was onLogin(email)
   };
 
   return (

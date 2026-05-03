@@ -19,7 +19,7 @@ export default function LoginCard({ onLogin, onSwitchToSignUp }) {
       setTimeout(() => setShake(false), 500);
       return;
     }
-    onLogin(email);
+    onLogin(email,password);
   };
 
   return (

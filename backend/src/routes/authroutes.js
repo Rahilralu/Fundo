@@ -5,9 +5,9 @@ import {
   refresh,
   logout,
   me
-} from "../controllers/auth.controller.js"
+} from "../controllers/auth.controllers.js"
 
-import { authenticate_token } from "../middlewares/auth.middleware.js"
+import { authenticate_token,cookie_validator } from "../middleware/auth.js"
 
 const router = express.Router()
 // Register

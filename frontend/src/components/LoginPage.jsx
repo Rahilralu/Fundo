@@ -1,13 +1,12 @@
 import React, { useState, Suspense, lazy } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft } from 'lucide-react';
 
 const Spline = lazy(() => import('@splinetool/react-spline'));
 import LeftPanel from './LeftPanel';
 import LoginCard from './LoginCard';
 import SignUpCard from './SignUpCard';
 
-export default function LoginPage({ onLogin }) {
+export default function LoginPage({ onLogin, onRegister }) {
   const [isSignUp, setIsSignUp] = useState(false);
 
   return (
@@ -32,7 +31,6 @@ export default function LoginPage({ onLogin }) {
 
       <div className="flex-1 flex flex-col justify-center items-center p-4 sm:p-6 relative bg-transparent z-10">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[800px] bg-purple-600/40 rounded-full blur-[150px] -z-10 pointer-events-none" />
-
         <div className="w-full max-w-[360px] relative translate-x-[10px]">
           <AnimatePresence mode="wait">
             {!isSignUp ? (
@@ -43,7 +41,10 @@ export default function LoginPage({ onLogin }) {
                 exit={{ x: 20, opacity: 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <LoginCard onLogin={onLogin} onSwitchToSignUp={() => setIsSignUp(true)} />
+                <LoginCard
+                  onLogin={onLogin}
+                  onSwitchToSignUp={() => setIsSignUp(true)}
+                />
               </motion.div>
             ) : (
               <motion.div
@@ -53,7 +54,10 @@ export default function LoginPage({ onLogin }) {
                 exit={{ x: -20, opacity: 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <SignUpCard onLogin={onLogin} onSwitchToLogin={() => setIsSignUp(false)} />
+                <SignUpCard
+                  onRegister={onRegister}
+                  onSwitchToLogin={() => setIsSignUp(false)}
+                />
               </motion.div>
             )}
           </AnimatePresence>

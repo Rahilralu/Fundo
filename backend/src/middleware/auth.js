@@ -1,17 +1,21 @@
 import jwt from "jsonwebtoken"
-import prisma from "../config/prisma.js"
+import prisma from "../config/psql.js"
 import { generateAccessToken } from "../utils/tokens.js"
 import crypto from "crypto"
 
 //Protect routes — verify access token from cookie
 export const authenticate_token = (req, res, next) => {
   try {
-    const token = req.cookies?.access_token
+    const authHeader = req.headers.authorization;
 
-    if (!token) {
-      return res.status(401).json({ success: false, message: "Not authenticated" })
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid or missing Authorization header"
+      });
     }
 
+    const token = authHeader.split(" ")[1];
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
       if (err) {
         if (err.name === "TokenExpiredError") {
