@@ -5,8 +5,8 @@
 ---
 
 ## 🛑 The Problem
-Collecting money for college events is broken. 
-Someone wants to organise a trip or an event. They ask 20 people for money. Some pay in cash, some say "I'll pay later", some forget. The organiser has no list, no record, no idea who paid ₹500 and who paid nothing. At the end, it's a mess of screenshots and WhatsApp messages. 
+Collecting money for college events is broken.
+Someone wants to organise a trip or an event. They ask 20 people for money. Some pay in cash, some say "I'll pay later", some forget. The organiser has no list, no record, no idea who paid ₹500 and who paid nothing. At the end, it's a mess of screenshots and WhatsApp messages.
 
 **Fundo fixes this entirely.**
 
@@ -50,31 +50,285 @@ Someone wants to organise a trip or an event. They ask 20 people for money. Some
 
 ---
 
-## 🛠️ The Tech Behind It
+## 🚀 Tech Stack
 
-- **React:** The frontend that students and organisers see and interact with.
-- **Express + PostgreSQL:** The backend that stores all data (events, users, payments) and handles all logic.
-- **JWT (JSON Web Tokens):** How the system knows who is logged in. The organiser and student each get a token that proves their identity.
-- **Razorpay:** The payment gateway. Handles the actual money movement. Fundo never directly touches the card or UPI details.
-- **Webhook + HMAC verification:** Razorpay secretly tells Fundo "payment done". Fundo checks a digital signature to confirm it's real.
-- **Socket.io:** Keeps the organiser's dashboard alive with real-time updates. When a payment lands, it appears on screen instantly.
-- **BullMQ:** A background job queue. Things like sending confirmation emails happen in the background without slowing down the payment response.
-- **Docker:** Packages the whole application so it can be deployed and run anywhere.
+### Backend
+- **Runtime:** Node.js with ES Modules
+- **Framework:** Express.js
+- **Database:** PostgreSQL with Prisma ORM
+- **Authentication:** JWT (Access & Refresh Tokens)
+- **Caching:** Redis for rate limiting
+- **Security:** bcrypt for password hashing, Helmet for headers, CORS
+- **Email:** Nodemailer for OTP verification
+- **Payments:** Razorpay integration (planned)
+- **Real-time:** Socket.io for live updates (planned)
+
+### Frontend
+- **Framework:** React 19 with Vite
+- **Styling:** Tailwind CSS with custom gradients
+- **UI Components:** Radix UI primitives
+- **Animations:** Framer Motion
+- **3D Graphics:** Spline for interactive backgrounds
+- **Routing:** React Router DOM
+- **HTTP Client:** Axios
+
+### DevOps & Tools
+- **Version Control:** Git
+- **Linting:** ESLint
+- **Build Tool:** Vite for frontend, Nodemon for backend dev
+- **Database Migrations:** Prisma Migrate
 
 ---
 
-## 🚀 Roadmap: Things Done & Coming Up
+## 📁 Project Structure
 
-### ✅ Done (Frontend Foundation)
-- **High-Fidelity Auth Interface:** Created a premium, dark-themed "glassmorphism" login and sign-up experience.
-- **Immersive 3D Backgrounds:** Integrated optimized `@splinetool/react-spline` 3D elements that load lazily for high performance.
-- **Responsive Split Layout:** Designed a seamless layout that provides storytelling and context on the left, and streamlined authentication on the right.
-- **Micro-interactions:** Added Framer Motion animations, shake-on-error inputs, and dynamic form switching.
+```
+fundo/
+├── backend/
+│   ├── index.js                 # Server entry point
+│   ├── package.json
+│   ├── prisma/
+│   │   ├── schema.prisma        # Database schema
+│   │   └── migrations/          # DB migrations
+│   └── src/
+│       ├── config/
+│       │   └── psql.js          # Prisma client config
+│       ├── controllers/
+│       │   ├── auth.controllers.js
+│       │   └── otp.controllers.js    # (Empty - next feature)
+│       ├── middleware/
+│       │   ├── auth.js          # JWT authentication
+│       │   └── ratelimiter.js   # Rate limiting
+│       ├── routes/
+│       │   ├── authroutes.js    # Auth endpoints
+│       │   └── index.js         # Route aggregator
+│       ├── services/
+│       │   ├── auth.service.js  # Auth business logic
+│       │   ├── mailer.js        # Email service (empty)
+│       │   └── razorpay.js      # Payment service (empty)
+│       ├── sockets/
+│       │   └── paymentsocket.js # Real-time updates (empty)
+│       └── utils/
+│           └── tokens.js        # JWT utilities
+├── frontend/
+│   ├── index.html
+│   ├── package.json
+│   ├── vite.config.js
+│   ├── src/
+│   │   ├── App.jsx
+│   │   ├── main.jsx
+│   │   ├── api/
+│   │   │   └── tokens.js        # API utilities
+│   │   ├── components/
+│   │   │   ├── ui/              # Reusable UI components
+│   │   │   ├── LoginPage.jsx    # Auth page with 3D background
+│   │   │   ├── Dashboard.jsx
+│   │   │   └── ...              # Other components
+│   │   ├── context/
+│   │   │   ├── AuthContext.jsx  # Auth state management
+│   │   │   └── ToastContext.jsx # Notifications
+│   │   ├── lib/
+│   │   │   └── utils.js         # Utility functions
+│   │   └── pages/
+│   │       ├── Landing.jsx      # Homepage
+│   │       ├── EventsList.jsx
+│   │       └── ...
+│   └── public/
+└── README.md
+```
 
-### 🚧 Coming Up
-- **Backend Architecture Setup:** Initializing Express, PostgreSQL, and basic routing.
-- **Authentication API:** Wiring up the React frontend with JWT-based backend authentication.
-- **Dashboard UI Development:** Building the live dashboard for organisers and the event feed for participants.
-- **Razorpay Integration:** Implementing the checkout flow and robust webhook listening/verification.
-- **Real-time Engine:** Setting up Socket.io for live dashboard updates.
-- **Export & Job Queueing:** Implementing CSV exports and background emails via BullMQ.
+---
+
+## 🛠️ Setup & Installation
+
+### Prerequisites
+- Node.js (v18+)
+- PostgreSQL (v13+)
+- Redis (for rate limiting)
+- Git
+
+### Backend Setup
+
+1. **Navigate to backend directory:**
+   ```bash
+   cd backend
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables:**
+   - Copy `.env` file and update values:
+   ```env
+   PORT=8000
+   ACCESS_TOKEN_SECRET=<your-secret>
+   REFRESH_TOKEN_SECRET=<your-secret>
+   SALT=10
+   REDIS_HOST=localhost
+   REDIS_PORT=6379
+   DATABASE_URL="postgresql://username:password@localhost:5432/fundo"
+   OWNER_MAIL=<your-email>
+   OWNER_PASSWORD=<your-password>
+   GMAIL_USER=<gmail-username>
+   GMAIL_PASS=<gmail-app-password>
+   ```
+
+4. **Set up database:**
+   ```bash
+   npx prisma migrate dev --name init
+   npx prisma generate
+   ```
+
+5. **Start development server:**
+   ```bash
+   npm run dev
+   ```
+
+### Frontend Setup
+
+1. **Navigate to frontend directory:**
+   ```bash
+   cd frontend
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Start development server:**
+   ```bash
+   npm run dev
+   ```
+
+### Full Stack Development
+
+1. **Start backend** (from backend directory):
+   ```bash
+   npm run dev
+   ```
+
+2. **Start frontend** (from frontend directory in new terminal):
+   ```bash
+   npm run dev
+   ```
+
+3. **Access the app:**
+   - Frontend: http://localhost:5173
+   - Backend API: http://localhost:8000
+
+---
+
+## 🔐 Authentication Flow
+
+### Current Implementation
+- **Registration:** User creates account with name, email, password, role
+- **Login:** Email/password authentication with JWT tokens
+- **Token Management:** Access tokens (short-lived) + Refresh tokens (stored in HTTP-only cookies)
+- **Protected Routes:** Middleware validates JWT on protected endpoints
+- **Logout:** Clears refresh token from database and cookies
+
+### Next Steps
+- **OTP Verification:** Email-based verification for account activation
+- **Password Reset:** Forgot password flow with OTP
+
+---
+
+## 📡 API Endpoints
+
+### Authentication (`/api/auth`)
+- `POST /register` - Register new user
+- `POST /login` - Login user
+- `POST /refresh` - Refresh access token
+- `POST /logout` - Logout user
+- `GET /me` - Get current user info (protected)
+
+### Planned Endpoints
+- `POST /verify-otp` - Verify email with OTP
+- `POST /resend-otp` - Resend verification OTP
+- `POST /events` - Create event (organisers only)
+- `GET /events` - List public events
+- `POST /payments/create-order` - Create Razorpay order
+- `POST /payments/webhook` - Razorpay webhook handler
+
+---
+
+## 🗄️ Database Schema
+
+### Current Models
+- **users:** User accounts with roles (student/organiser)
+- **refresh_tokens:** JWT refresh tokens storage
+
+### Planned Models
+- **events:** Event details (title, description, price, capacity, type)
+- **payments:** Payment records linked to events and users
+- **event_participants:** Many-to-many relationship for event registrations
+
+---
+
+## 🔒 Security Features
+
+- **Password Hashing:** bcrypt with configurable salt rounds
+- **JWT Tokens:** Secure token-based authentication
+- **HTTP-Only Cookies:** Refresh tokens stored securely
+- **Rate Limiting:** Express rate limiter with Redis
+- **CORS:** Configured for frontend origin
+- **Helmet:** Security headers
+- **Input Validation:** Zod schemas (planned)
+
+---
+
+## 🚧 Development Roadmap
+
+### Phase 1: Authentication ✅
+- User registration and login
+- JWT-based authentication
+- Role-based access (student/organiser)
+
+### Phase 2: OTP Verification 🔄 (Current)
+- Email verification with OTP
+- Password reset functionality
+
+### Phase 3: Event Management
+- Create public/private events
+- Event listing and details
+- Organiser dashboard
+
+### Phase 4: Payment Integration
+- Razorpay payment gateway
+- Webhook handling
+- Payment tracking
+
+### Phase 5: Real-time Features
+- Socket.io for live updates
+- Real-time payment notifications
+- Live dashboard updates
+
+### Phase 6: Advanced Features
+- CSV export for organisers
+- Event analytics
+- Admin panel
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+This project is licensed under the ISC License.
+
+---
+
+## 📞 Contact
+
+For questions or support, please reach out to the development team.

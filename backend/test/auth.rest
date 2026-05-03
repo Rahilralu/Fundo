@@ -1,0 +1,43 @@
+@baseUrl = http://localhost:8000
+
+###Register User
+
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+"name":"tester",
+"email": "test1@example.com",
+"password": "12345678"
+}
+
+###
+
+# Login User
+
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+"email": "test@example.com",
+"password": "12345678"
+}
+
+###
+
+# Get Current User (Protected Route)
+
+GET {{baseUrl}}/api/auth/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJkNWEzZWNhMS0xNzNkLTQ1MTAtYWM1Ni01NDIyODZmNGMxMzEiLCJlbWFpbCI6InRlc3QxQGV4YW1wbGUuY29tIiwiaWF0IjoxNzc3ODE4Mjg0LCJleHAiOjE3Nzc4MjE4ODR9.JwALAtwgYWs4e2Som4-4CrhWoirN3UcEz9kZokJlzoY
+
+# Refresh Access Token
+###
+POST {{baseUrl}}/api/auth/refresh
+Cookie: refresh_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJkNWEzZWNhMS0xNzNkLTQ1MTAtYWM1Ni01NDIyODZmNGMxMzEiLCJpYXQiOjE3Nzc4MTg2ODIsImV4cCI6MTc3ODQyMzQ4Mn0.sEuDrvaqyuFr5qvt7oyS_04p-zo1J4br_FXRnZWHw4s
+
+###
+
+# Logout User
+
+POST {{baseUrl}}/api/auth/logout
+Cookie: refresh_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI3NDVjOTNjNy0zYmU5LTRlMjAtYjQ4YS04ZjQ5MmJkZjJlZDIiLCJpYXQiOjE3Nzc4MTg5OTIsImV4cCI6MTc3ODQyMzc5Mn0.NlyjBDtK5PIUI3WNU9VSsV-4iRh32NtavrQw16nR3GE
