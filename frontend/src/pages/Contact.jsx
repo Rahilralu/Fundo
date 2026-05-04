@@ -14,7 +14,7 @@ export default function Contact() {
           <p className="text-white/60 text-sm">We're here to help! Find answers or get in touch with our support team.</p>
         </div>
         <button className="bg-[#8155ff]/20 text-[#8155ff] border border-[#8155ff]/30 px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 hover:bg-[#8155ff]/30 transition-all">
-          <HeadphonesIcon size={16} /> Contact Support
+          <Headphones size={16} /> Contact Support
         </button>
       </div>
 
@@ -123,7 +123,7 @@ export default function Contact() {
             </p>
             
             <button className="w-full bg-[#8155ff] hover:bg-[#6035f5] text-white px-6 py-3.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all shadow-[0_0_20px_rgba(129,85,255,0.2)] mb-8">
-              <HeadphonesIcon size={18} /> Contact Support
+              <Headphones size={18} /> Contact Support
             </button>
             
             <div className="space-y-6">
