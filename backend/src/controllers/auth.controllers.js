@@ -37,7 +37,7 @@ export const login = async (req, res) => {
 
     return res.json({
       success: true,
-      accessToken,
+      access_token: accessToken,
       user
     })
   } catch (err) {
@@ -65,7 +65,7 @@ export const refresh = async (req, res) => {
 
     return res.json({
       success: true,
-      accessToken: newAccessToken
+      access_token: newAccessToken
     })
   } catch (err) {
     return res.status(err.status || 500).json({
