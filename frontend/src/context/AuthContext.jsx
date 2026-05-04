@@ -17,15 +17,23 @@ export const AuthProvider = ({ children }) => {
         method: 'POST',
         credentials: 'include',
       });
+
       if (res.ok) {
-        const data = await res.json(); // ← was missing
-        setToken(data.access_token);
-        setUser(data.user);
+        const data = await res.json();
+        setToken(data.access_token);  // ✅ stores in memory
+
+        // ✅ fetch user with the restored token
+        const meRes = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/me`, {
+          headers: { Authorization: `Bearer ${data.access_token}` },
+          credentials: 'include',
+        });
+        const meData = await meRes.json();
+        if (meData.success) setUser(meData.user);
       }
     } catch (err) {
       console.error('Session restore failed:', err);
     } finally {
-      setLoading(false);
+      setLoading(false);  // ✅ only renders children after this
     }
   };
 
@@ -45,7 +53,7 @@ export const AuthProvider = ({ children }) => {
     if (data.success) {
       setToken(data.access_token);
       setUser(data.user); // backend should return user object
-      navigate('/dashboard');
+      navigate('/events');
       return null; // no error
     }
 

@@ -198,7 +198,12 @@ fundo/
    npm install
    ```
 
-3. **Start development server:**
+3. **Create a `.env` file** with the backend URL:
+   ```env
+   VITE_BACKEND_URL=http://localhost:8000
+   ```
+
+4. **Start development server:**
    ```bash
    npm run dev
    ```

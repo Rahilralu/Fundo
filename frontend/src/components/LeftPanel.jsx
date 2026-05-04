@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 export default function LeftPanel() {
   return (
@@ -9,12 +10,12 @@ export default function LeftPanel() {
       <div className="relative z-10 h-full flex flex-col pointer-events-none">
 
         {/* Logo */}
-        <div className="flex items-center gap-3 mb-12 pointer-events-auto">
+        <Link to="/" className="flex items-center gap-3 mb-12 pointer-events-auto hover:opacity-80 transition-opacity w-fit">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center shadow-lg shadow-purple-500/20">
             <span className="font-bold text-xl text-white">F</span>
           </div>
           <span className="font-bold text-2xl tracking-tight text-white">Fundo</span>
-        </div>
+        </Link>
 
         {/* Hero Text */}
         <div className="max-w-xl flex-1 flex flex-col justify-center pb-12">

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
@@ -32,12 +33,12 @@ export default function LoginCard({ onLogin, onSwitchToSignUp }) {
         <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-black/40 pointer-events-none" />
         <CardHeader className="space-y-3 pb-3 pt-5">
           <div className="flex flex-col items-center relative">
-            <div className="flex flex-col items-center gap-1">
+            <Link to="/" className="flex flex-col items-center gap-1 hover:opacity-80 transition-opacity cursor-pointer">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#8155ff] to-[#6035f5] flex items-center justify-center shadow-lg shadow-brand-500/30">
                 <span className="font-heading font-bold text-xl text-white">F</span>
               </div>
               <span className="font-heading font-bold text-lg tracking-tight text-white">Fundo</span>
-            </div>
+            </Link>
           </div>
 
           <div className="space-y-1 pt-1">
@@ -55,6 +56,8 @@ export default function LoginCard({ onLogin, onSwitchToSignUp }) {
                 <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 group-focus-within:text-brand-400 transition-colors" />
                 <Input
                   type="email"
+                  name="email"
+                  autoComplete="username"
                   placeholder="Enter your email"
                   className="pl-10 h-11 rounded-xl bg-black/20 border-white/5 text-white placeholder:text-white/30 focus:border-brand-400 focus:bg-black/40 transition-all text-xs"
                   value={email}
@@ -69,6 +72,8 @@ export default function LoginCard({ onLogin, onSwitchToSignUp }) {
                 <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 group-focus-within:text-brand-400 transition-colors" />
                 <Input
                   type={showPassword ? "text" : "password"}
+                  name="password"
+                  autoComplete="current-password"
                   placeholder="Enter your password"
                   className="pl-10 pr-10 h-11 rounded-xl bg-black/20 border-white/5 text-white placeholder:text-white/30 focus:border-brand-400 focus:bg-black/40 transition-all text-xs"
                   value={password}
