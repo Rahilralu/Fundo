@@ -5,15 +5,26 @@ import {
   logoutUser,
   getMe
 } from "../services/auth.service.js"
+import { otpStore, verifiedEmails } from '../store/otpStore.js' 
 
 export const register = async (req, res) => {
   try {
-    const user = await registerUser(req.body)
+    const { email, password, name } = req.body;
 
+    const verifiedUntil = verifiedEmails.get(email);
+    if (!verifiedUntil || Date.now() > verifiedUntil) {
+      return res.status(403).json({ error: 'Email not verified.Please complete OTP verification.' });
+    }
+
+    verifiedEmails.delete(email);
+
+    const user = await registerUser(req.body)
+    
     return res.status(201).json({
       success: true,
       user
     })
+    
   } catch (err) {
     return res.status(err.status || 500).json({
       success: false,

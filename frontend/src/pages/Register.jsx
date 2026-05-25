@@ -4,20 +4,22 @@ import { useNavigate } from 'react-router-dom';
 import LeftPanel from '../components/LeftPanel';
 import SignUpCard from '../components/SignUpCard';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 
 const Spline = lazy(() => import('@splinetool/react-spline'));
 
 export default function Register() {
   const navigate = useNavigate();
-  const { register } = useAuth(); // ← was login
+  const { register } = useAuth();
+  const { addToast } = useToast();
 
   const handleRegister = async (name, email, password) => {
     const error = await register(name, email, password);
     if (error) {
-      console.error(error); // replace with your toast later
+      addToast(error, 'error');
       return;
     }
-    // register() auto-logs in and navigates to /dashboard via AuthContext
+    addToast('Account created! Please check your email for the OTP.', 'success');
   };
 
   return (

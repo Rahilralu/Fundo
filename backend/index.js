@@ -5,6 +5,8 @@ import rateLimit from "express-rate-limit";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import routes from "./src/routes/index.js"
+import { connect } from 'node:http2';
+import { connectRedis } from './src/config/redis.js';
 
 dotenv.config();
 const app = express();
@@ -29,6 +31,7 @@ app.use(limiter);
 app.use('/api', routes);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+app.listen(PORT,async () => {
+  await connectRedis();
   console.log(`🚀 Server running on port ${PORT}`);
 });

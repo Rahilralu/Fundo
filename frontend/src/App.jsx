@@ -8,6 +8,7 @@ import Landing from './pages/Landing';
 import EventsList from './pages/EventsList';
 import EventDetail from './pages/EventDetail';
 import Register from './pages/Register';
+import OTP from './pages/OTP';
 import Dashboard from './pages/Dashboard';
 import PrivateInvite from './pages/PrivateInvite';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -47,6 +48,7 @@ function App() {
           <Routes>
             <Route path="/login" element={<LoginRoute />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/otp" element={<OTP />} />
 
             <Route path="/*" element={
               <MainLayout>

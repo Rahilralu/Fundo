@@ -59,11 +59,15 @@ export const loginUser = async ({ email,password }) => {
         const accessToken  = generateAccessToken(user.id, user.email, user.role)
         const refreshToken = generateRefreshToken(user.id, user.email, user.role)
 
+       await prisma.refresh_tokens.deleteMany({
+            where: { user_id: user.id }
+        })
+
         await prisma.refresh_tokens.create({
             data: {
-            user_id:    user.id,
-            token_hash: hashToken(refreshToken),
-            expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+                user_id: user.id,
+                token_hash: hashToken(refreshToken),
+                expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
             }
         })
         const safeUser = {

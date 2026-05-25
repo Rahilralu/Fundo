@@ -1,5 +1,6 @@
 import React, { useState, Suspense, lazy } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useToast } from '../context/ToastContext';
 
 const Spline = lazy(() => import('@splinetool/react-spline'));
 import LeftPanel from './LeftPanel';
@@ -8,6 +9,16 @@ import SignUpCard from './SignUpCard';
 
 export default function LoginPage({ onLogin, onRegister }) {
   const [isSignUp, setIsSignUp] = useState(false);
+  const { addToast } = useToast();
+
+  const handleRegister = async (name, email, password) => {
+    const error = await onRegister(name, email, password);
+    if (error) {
+      addToast(error, 'error');
+    } else {
+      addToast('Account created! Please check your email for the OTP.', 'success');
+    }
+  };
 
   return (
     <motion.div
@@ -55,7 +66,7 @@ export default function LoginPage({ onLogin, onRegister }) {
                 transition={{ duration: 0.3 }}
               >
                 <SignUpCard
-                  onRegister={onRegister}
+                  onRegister={handleRegister}
                   onSwitchToLogin={() => setIsSignUp(false)}
                 />
               </motion.div>

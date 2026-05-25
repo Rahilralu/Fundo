@@ -41,3 +41,21 @@ Cookie: refresh_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJkNWEzZ
 
 POST {{baseUrl}}/api/auth/logout
 Cookie: refresh_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI3NDVjOTNjNy0zYmU5LTRlMjAtYjQ4YS04ZjQ5MmJkZjJlZDIiLCJpYXQiOjE3Nzc4MTg5OTIsImV4cCI6MTc3ODQyMzc5Mn0.NlyjBDtK5PIUI3WNU9VSsV-4iRh32NtavrQw16nR3GE
+
+
+###Sent otp
+POST {{baseUrl}}/api/auth/send-otp 
+Content-Type: application/json
+    
+{
+    "email":"rahilnazar1234@gmail.com"
+}
+###Verify otp
+
+POST {{baseUrl}}/api/auth/verify-otp 
+Content-Type: application/json
+
+{
+    "email":"rahilnazar1234@gmail.com",
+    "otp":"428810"
+}

@@ -84,9 +84,10 @@ export const AuthProvider = ({ children }) => {
     });
     const data = await res.json();
     if (data.success) {
-      return login(email, password);
+      navigate('/otp', { state: { email } });
+      return null;
     }
-    return data.message || 'Registration failed';
+    return data.message || data.error || 'Registration failed';
   };
   return (
     <AuthContext.Provider value={{ user, login, logout, register, loading }}>
