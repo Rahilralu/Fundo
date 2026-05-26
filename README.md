@@ -1,82 +1,56 @@
 # ⚡️ Fundo
 
-**A platform where organisers create events and students pay online — and everything is tracked automatically.**
+**Fundo is a college event payment platform for organisers and students.**
+It helps organisers create events, collect online payments via Razorpay, and track every transaction in one place.
 
 ---
 
-## 🛑 The Problem
-Collecting money for college events is broken.
-Someone wants to organise a trip or an event. They ask 20 people for money. Some pay in cash, some say "I'll pay later", some forget. The organiser has no list, no record, no idea who paid ₹500 and who paid nothing. At the end, it's a mess of screenshots and WhatsApp messages.
+## 🚀 What Fundo Solves
 
-**Fundo fixes this entirely.**
+College event payments are often handled with cash, screenshots, and scattered messages.
+Fundo provides a single system for:
 
----
-
-## 🎟️ The Two Types of Events
-
-### 1. Public Event
-- Visible to everyone on the main dashboard when they open Fundo.
-- Anyone from the campus can see it, click on it, and pay to register.
-- **Best for:** College fests, competitions, seminars — events that are open to everyone.
-
-### 2. Private Event
-- Hidden from the dashboard.
-- The organiser gets a unique link and shares it only with specific people. Only someone with that link can access and pay.
-- **Best for:** Club trips, department outings, or restricted gatherings.
+- creating event registration pages,
+- collecting payments online,
+- recording payment status in the database,
+- viewing transaction history,
+- and controlling access for private events.
 
 ---
 
-## 💸 How a Payment Works — Step by Step
+## ✅ Implemented Features
 
-1. **Student opens the event** — either from the dashboard (public) or from the link shared by the organiser (private).
-2. **Student clicks Pay** — Razorpay's checkout window opens. They can pay via UPI, card, net banking, anything.
-3. **Payment goes to Razorpay** — Razorpay processes the money and sends a secret signal (called a webhook) to Fundo's backend saying "this person paid".
-4. **Fundo verifies the signal** — the backend checks a secret signature to make sure the signal is genuinely from Razorpay and not a fake. This is the security layer.
-5. **Record is saved** — the database now has: who paid, how much, at what time. Permanently. No manual entry needed.
-6. **Organiser's dashboard updates live** — the moment a payment is confirmed, the organiser sees it appear in real time without refreshing the page. *(Powered by Socket.io)*
-
----
-
-## 👥 Who Uses It & What They Get
-
-### For the Organiser (Student club, department, individual)
-- **Live payment dashboard:** A screen that shows every payment as it happens (Name, amount, time). No refresh needed.
-- **CSV export:** Download the entire payment list as a spreadsheet. Useful for submitting records to a college, treasurer, or faculty coordinator.
-- **Zero manual work:** The organiser never has to chase people for payment screenshots or manually mark who paid. The system does all of it.
-
-### For the Participant (Student)
-- **Simple, familiar checkout:** They just click Pay, use UPI or card like any other app, and they're done. No separate app to download. No cash needed.
-- **Proof of payment:** Their payment is recorded in the system. No need to keep a screenshot or argue later about whether they paid.
+- User registration and login with **JWT access tokens** and **refresh token rotation**
+- Protected backend routes for user profile, event management, and transactions
+- Event creation, update, and deletion with **image upload support**
+- Public event listing and event detail retrieval
+- Razorpay **order creation** and **payment verification**
+- Transaction history queries for both current user and all transactions
+- Redis connection + rate limiting for backend request control
+- Tailwind + React frontend with landing page, auth flows, dashboard, and event pages
+- OTP verification UI built into the frontend experience
 
 ---
 
-## 🚀 Tech Stack
+## 🧱 Tech Stack
 
 ### Backend
-- **Runtime:** Node.js with ES Modules
-- **Framework:** Express.js
-- **Database:** PostgreSQL with Prisma ORM
-- **Authentication:** JWT (Access & Refresh Tokens)
-- **Caching:** Redis for rate limiting
-- **Security:** bcrypt for password hashing, Helmet for headers, CORS
-- **Email:** Nodemailer for OTP verification
-- **Payments:** Razorpay integration (planned)
-- **Real-time:** Socket.io for live updates (planned)
+
+- Node.js + Express
+- PostgreSQL + Prisma
+- JWT authentication
+- Redis for connectivity and rate limiting
+- Razorpay SDK for payment orders and verification
+- Cloudinary-backed uploads via multer
+- Helmet, CORS, and express-rate-limit security
 
 ### Frontend
-- **Framework:** React 19 with Vite
-- **Styling:** Tailwind CSS with custom gradients
-- **UI Components:** Radix UI primitives
-- **Animations:** Framer Motion
-- **3D Graphics:** Spline for interactive backgrounds
-- **Routing:** React Router DOM
-- **HTTP Client:** Axios
 
-### DevOps & Tools
-- **Version Control:** Git
-- **Linting:** ESLint
-- **Build Tool:** Vite for frontend, Nodemon for backend dev
-- **Database Migrations:** Prisma Migrate
+- React 19 + Vite
+- Tailwind CSS
+- Framer Motion for animations
+- React Router DOM for navigation
+- Spline for interactive 3D background visuals
 
 ---
 
@@ -85,255 +59,121 @@ Someone wants to organise a trip or an event. They ask 20 people for money. Some
 ```
 fundo/
 ├── backend/
-│   ├── index.js                 # Server entry point
+│   ├── index.js
 │   ├── package.json
 │   ├── prisma/
-│   │   ├── schema.prisma        # Database schema
-│   │   └── migrations/          # DB migrations
-│   └── src/
-│       ├── config/
-│       │   └── psql.js          # Prisma client config
-│       ├── controllers/
-│       │   ├── auth.controllers.js
-│       │   └── otp.controllers.js    # (Empty - next feature)
-│       ├── middleware/
-│       │   ├── auth.js          # JWT authentication
-│       │   └── ratelimiter.js   # Rate limiting
-│       ├── routes/
-│       │   ├── authroutes.js    # Auth endpoints
-│       │   └── index.js         # Route aggregator
-│       ├── services/
-│       │   ├── auth.service.js  # Auth business logic
-│       │   ├── mailer.js        # Email service (empty)
-│       │   └── razorpay.js      # Payment service (empty)
-│       ├── sockets/
-│       │   └── paymentsocket.js # Real-time updates (empty)
-│       └── utils/
-│           └── tokens.js        # JWT utilities
+│   ├── src/
+│   │   ├── config/
+│   │   ├── controllers/
+│   │   ├── middleware/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   ├── sockets/
+│   │   ├── store/
+│   │   └── utils/
 ├── frontend/
 │   ├── index.html
 │   ├── package.json
 │   ├── vite.config.js
 │   ├── src/
-│   │   ├── App.jsx
-│   │   ├── main.jsx
-│   │   ├── api/
-│   │   │   └── tokens.js        # API utilities
 │   │   ├── components/
-│   │   │   ├── ui/              # Reusable UI components
-│   │   │   ├── LoginPage.jsx    # Auth page with 3D background
-│   │   │   ├── Dashboard.jsx
-│   │   │   └── ...              # Other components
 │   │   ├── context/
-│   │   │   ├── AuthContext.jsx  # Auth state management
-│   │   │   └── ToastContext.jsx # Notifications
+│   │   ├── pages/
+│   │   ├── api/
 │   │   ├── lib/
-│   │   │   └── utils.js         # Utility functions
-│   │   └── pages/
-│   │       ├── Landing.jsx      # Homepage
-│   │       ├── EventsList.jsx
-│   │       └── ...
-│   └── public/
+│   │   └── App.jsx
 └── README.md
 ```
 
 ---
 
-## 🛠️ Setup & Installation
+## ⚙️ Setup
 
-### Prerequisites
-- Node.js (v18+)
-- PostgreSQL (v13+)
-- Redis (for rate limiting)
-- Git
+### Backend
 
-### Backend Setup
+```bash
+cd backend
+npm install
+```
 
-1. **Navigate to backend directory:**
-   ```bash
-   cd backend
-   ```
+Create `backend/.env` with:
 
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+```env
+PORT=8000
+DATABASE_URL=postgresql://username:password@localhost:5432/fundo
+ACCESS_TOKEN_SECRET=your_access_secret
+REFRESH_TOKEN_SECRET=your_refresh_secret
+SALT=10
+REDIS_URL=redis://localhost:6379
+RAZORPAY_KEY_ID=your_razorpay_key_id
+RAZORPAY_KEY_SECRET=your_razorpay_secret
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_cloudinary_api_key
+CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+```
 
-3. **Set up environment variables:**
-   - Copy `.env` file and update values:
-   ```env
-   PORT=8000
-   ACCESS_TOKEN_SECRET=<your-secret>
-   REFRESH_TOKEN_SECRET=<your-secret>
-   SALT=10
-   REDIS_HOST=localhost
-   REDIS_PORT=6379
-   DATABASE_URL="postgresql://username:password@localhost:5432/fundo"
-   OWNER_MAIL=<your-email>
-   OWNER_PASSWORD=<your-password>
-   GMAIL_USER=<gmail-username>
-   GMAIL_PASS=<gmail-app-password>
-   ```
+Run migrations and generate Prisma client:
 
-4. **Set up database:**
-   ```bash
-   npx prisma migrate dev --name init
-   npx prisma generate
-   ```
+```bash
+npx prisma migrate dev --name init
+npx prisma generate
+```
 
-5. **Start development server:**
-   ```bash
-   npm run dev
-   ```
+Start the backend:
 
-### Frontend Setup
+```bash
+npm run dev
+```
 
-1. **Navigate to frontend directory:**
-   ```bash
-   cd frontend
-   ```
+### Frontend
 
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+```bash
+cd frontend
+npm install
+```
 
-3. **Create a `.env` file** with the backend URL:
-   ```env
-   VITE_BACKEND_URL=http://localhost:8000
-   ```
+Create `frontend/.env` with:
 
-4. **Start development server:**
-   ```bash
-   npm run dev
-   ```
+```env
+VITE_BACKEND_URL=http://localhost:8000
+```
 
-### Full Stack Development
+Start the frontend app:
 
-1. **Start backend** (from backend directory):
-   ```bash
-   npm run dev
-   ```
-
-2. **Start frontend** (from frontend directory in new terminal):
-   ```bash
-   npm run dev
-   ```
-
-3. **Access the app:**
-   - Frontend: http://localhost:5173
-   - Backend API: http://localhost:8000
+```bash
+npm run dev
+```
 
 ---
 
-## 🔐 Authentication Flow
+## 📌 Scripts
 
-### Current Implementation
-- **Registration:** User creates account with name, email, password, role
-- **Login:** Email/password authentication with JWT tokens
-- **Token Management:** Access tokens (short-lived) + Refresh tokens (stored in HTTP-only cookies)
-- **Protected Routes:** Middleware validates JWT on protected endpoints
-- **Logout:** Clears refresh token from database and cookies
+### Backend (`backend/package.json`)
 
-### Next Steps
-- **OTP Verification:** Email-based verification for account activation
-- **Password Reset:** Forgot password flow with OTP
+- `npm run dev` — run server with nodemon
+- `npm test` — placeholder
 
----
+### Frontend (`frontend/package.json`)
 
-## 📡 API Endpoints
-
-### Authentication (`/api/auth`)
-- `POST /register` - Register new user
-- `POST /login` - Login user
-- `POST /refresh` - Refresh access token
-- `POST /logout` - Logout user
-- `GET /me` - Get current user info (protected)
-
-### Planned Endpoints
-- `POST /verify-otp` - Verify email with OTP
-- `POST /resend-otp` - Resend verification OTP
-- `POST /events` - Create event (organisers only)
-- `GET /events` - List public events
-- `POST /payments/create-order` - Create Razorpay order
-- `POST /payments/webhook` - Razorpay webhook handler
+- `npm run dev` — run Vite dev server
+- `npm run build` — production build
+- `npm run preview` — preview production build
+- `npm run lint` — lint code
 
 ---
 
-## 🗄️ Database Schema
+## 💡 Notes
 
-### Current Models
-- **users:** User accounts with roles (student/organiser)
-- **refresh_tokens:** JWT refresh tokens storage
-
-### Planned Models
-- **events:** Event details (title, description, price, capacity, type)
-- **payments:** Payment records linked to events and users
-- **event_participants:** Many-to-many relationship for event registrations
+- The backend exposes `api/auth`, `api/events`, and `api/transactions` routes.
+- The frontend includes auth, event browsing, dashboard, and private invite flows.
+- Razorpay order and verification logic is implemented in backend services.
+- OTP verification has UI support; backend OTP controllers exist for future route wiring.
 
 ---
 
-## 🔒 Security Features
+## 📬 Next Steps
 
-- **Password Hashing:** bcrypt with configurable salt rounds
-- **JWT Tokens:** Secure token-based authentication
-- **HTTP-Only Cookies:** Refresh tokens stored securely
-- **Rate Limiting:** Express rate limiter with Redis
-- **CORS:** Configured for frontend origin
-- **Helmet:** Security headers
-- **Input Validation:** Zod schemas (planned)
-
----
-
-## 🚧 Development Roadmap
-
-### Phase 1: Authentication ✅
-- User registration and login
-- JWT-based authentication
-- Role-based access (student/organiser)
-
-### Phase 2: OTP Verification 🔄 (Current)
-- Email verification with OTP
-- Password reset functionality
-
-### Phase 3: Event Management
-- Create public/private events
-- Event listing and details
-- Organiser dashboard
-
-### Phase 4: Payment Integration
-- Razorpay payment gateway
-- Webhook handling
-- Payment tracking
-
-### Phase 5: Real-time Features
-- Socket.io for live updates
-- Real-time payment notifications
-- Live dashboard updates
-
-### Phase 6: Advanced Features
-- CSV export for organisers
-- Event analytics
-- Admin panel
-
----
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
----
-
-## 📄 License
-
-This project is licensed under the ISC License.
-
----
-
-## 📞 Contact
-
-For questions or support, please reach out to the development team.
+- deploy backend and frontend to a cloud environment
+- add real-time Socket.io updates for payments
+- enable OTP APIs end-to-end
+- add end-to-end tests and CI configuration
