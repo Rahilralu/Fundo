@@ -18,3 +18,23 @@ export async function getDashboardStatsService() {
     totalAmountCollected: amountData._sum.amount || 0,
   };
 }
+
+export async function getMyStatsService(userId){
+    const [ totalUsers,totalTransactions,successfulPayments,amountData ] = await Promise.all([
+      prisma.Event.count({ where : {createdBy : userId }}),
+      prisma.Transaction.count({ where : { userId }}),
+      prisma.Transaction.count({ where : { userId,status : 'SUCCESS' }}),
+      prisma.Transaction.aggregate({
+        _sum: { amount: true },
+        where: { userId,status:'SUCCESS' },
+      }),
+    ]);
+
+    return {
+      totalEvents,
+      totalTransactions,
+      successfulPayments,
+      totalAmountSpent: amountData._sum.amount || 0,
+    };
+}
+

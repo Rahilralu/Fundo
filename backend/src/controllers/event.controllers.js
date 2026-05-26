@@ -1,19 +1,20 @@
-import { createEventService,getPublicEventsService,getEventByIdService,updateEventService,deleteEventService } from '../services/event.service.js';
+import { createEventService,getPublicEventsService,getEventByIdService,updateEventService,deleteEventService,getMyEventsService } from '../services/event.service.js';
 
-export async function createEvent(req,res){
-    try{
-        console.log('files:', req.files);
-        console.log('file:', req.file);
-        console.log('body:', req.body);
-        const image = req.file?.path;
-        const event = await createEventService({...req.body, image, createdBy: req.user.userId })
-
-        res.status(201).json({ success : true , event });
-    }
-    catch(err){
-        console.error('DB ERROR:', err.message, err.code, err.meta);
-        res.status(500).json({ error : 'Failed to create event',message: err.message});
-    }
+export async function createEvent(req, res) {
+  try {
+    const image = req.file?.path;
+    const event = await createEventService({
+      ...req.body,
+      image,
+      createdBy: req.user.userId,
+      creatorEmail: req.user.email,
+    });
+    res.status(201).json({ success: true, event });
+    } 
+    catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to create event' });
+  }
 }
 
 export async function getPublicEvent(req,res){
@@ -58,3 +59,14 @@ export async function deleteEvent(req,res){
         res.status(500).json({ error: 'Failed to delete event' });
     }
 }
+
+export async function getMyEvents(userId){
+    try {
+        const events = await getMyEvents(req.user.userId);
+        res.status(200).json({ success: true , events })    
+    } 
+    catch (err) {
+        res.status(500).json({ error : "Failed to fetch your events "});
+    }
+}
+

@@ -3,6 +3,7 @@ import authRoutes from "./authroutes.js"
 import eventRoutes from "./eventRoutes.js";
 import transactionRoutes from "./transactionsRoutes.js"
 import dashboardRoutes from './dashbooardRoutes.js'
+import profileRoutes from './profileRoutes.js'
 
 const router = express.Router()
 
@@ -11,5 +12,6 @@ router.use("/auth", authRoutes);
 router.use("/events",eventRoutes);
 router.use("/transactions",transactionRoutes);
 router.use('/dashboard',dashboardRoutes);
+router.use('/profile',profileRoutes);
 
 export default router

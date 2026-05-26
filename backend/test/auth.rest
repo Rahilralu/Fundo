@@ -28,7 +28,7 @@ Content-Type: application/json
 # Get Current User (Protected Route)
 
 GET {{baseUrl}}/api/auth/me
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIwNGRiMzQ0Yi03ODU1LTRiZTYtOTk4Zi1kMjk3MjNiNGMyZjAiLCJlbWFpbCI6InRlc3QxQGV4YW1wbGUuY29tIiwiaWF0IjoxNzc5NzcxMzU0LCJleHAiOjE3Nzk3NzQ5NTR9.PgmbR1G8wTJdHTYdE_f_u4Sb5sKv3xSvhh04IyCylwY
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZGFmNzYxZi0zODk4LTQ4ODgtYTNkMS00ZGJmYjc3N2QxNWMiLCJlbWFpbCI6InRlc3QxQGV4YW1wbGUuY29tIiwiaWF0IjoxNzc5Nzk4MDE1LCJleHAiOjE3Nzk4MDE2MTV9.UTckZry31tgScYfx45adX1VYsNibae0Lk-Er1PU8Mjg
 
 # Refresh Access Token
 ###
