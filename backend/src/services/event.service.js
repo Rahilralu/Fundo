@@ -1,7 +1,5 @@
-import { PrismaClient } from "@prisma/client";
 import { v4 as uuid } from 'uuid';
-
-const prisma = new PrismaClient();
+import prisma from "../config/psql.js";
 
 //Create event
 export async function createEventService({ title,description,date,location,price,capacity,type,image,createdBy }){
@@ -14,13 +12,14 @@ export async function createEventService({ title,description,date,location,price
         capacity: parseInt(capacity),
         image: image || '',
         type: type === 'PRIVATE' ? 'PRIVATE' : 'PUBLIC',
-        createdBy,
+        user: {
+            connect: { id: createdBy }
+        },
     };
 
     if(type === 'PRIVATE'){
         eventData.code = uuid().slice(0,8).toUpperCase();
     }
-
     return await prisma.Event.create({ data: eventData });
 }
 

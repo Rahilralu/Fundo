@@ -5,7 +5,6 @@ import rateLimit from "express-rate-limit";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import routes from "./src/routes/index.js"
-import { connect } from 'node:http2';
 import { connectRedis } from './src/config/redis.js';
 
 dotenv.config();
@@ -13,9 +12,17 @@ const app = express();
 
 // ✅ CORS first — before everything
 app.use(cors({
-  origin: ['http://localhost:5173'],
-  credentials: true
+  origin: function(origin, callback) {
+    const allowed = ['http://localhost:5173', 'http://localhost:3000'];
+    if (!origin || allowed.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(null, true); // allow all for now including file://
+    }
+  },
+  credentials: true,
 }));
+
 
 app.use(express.json());
 app.use(cookieParser());
@@ -29,6 +36,10 @@ const limiter = rateLimit({
 app.use(limiter);
 
 app.use('/api', routes);
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(err.status || 500).json({ error: err.message || 'Internal server error' });
+});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT,async () => {

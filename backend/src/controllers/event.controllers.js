@@ -2,13 +2,17 @@ import { createEventService,getPublicEventsService,getEventByIdService,updateEve
 
 export async function createEvent(req,res){
     try{
+        console.log('files:', req.files);
+        console.log('file:', req.file);
+        console.log('body:', req.body);
         const image = req.file?.path;
-        const event = await createEventService({...req.body, image, createdBy: req.user.id })
+        const event = await createEventService({...req.body, image, createdBy: req.user.userId })
 
         res.status(201).json({ success : true , event });
     }
     catch(err){
-        res.status(500).json({ error : 'Failed to create event'});
+        console.error('DB ERROR:', err.message, err.code, err.meta);
+        res.status(500).json({ error : 'Failed to create event',message: err.message});
     }
 }
 

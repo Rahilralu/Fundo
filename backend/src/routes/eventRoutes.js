@@ -1,0 +1,19 @@
+import express from 'express';
+import { createEvent,getPublicEvent,getEventById,updateEvent,deleteEvent } from '../controllers/event.controllers.js';
+
+import { authenticate_token } from '../middleware/auth.js';
+import { upload } from '../config/upload.js'
+
+const router = express.Router()
+
+router.post('/', authenticate_token, (req, res, next) => {
+    console.log('content-type:', req.headers['content-type']);
+    next();
+}, upload.single('image'), createEvent);
+router.get('/',getPublicEvent);
+router.get('/:id',getEventById);
+router.put('/:id',authenticate_token,upload.single('image'),updateEvent);
+router.delete('/:id',authenticate_token,deleteEvent);
+
+
+export default router 

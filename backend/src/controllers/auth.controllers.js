@@ -11,12 +11,12 @@ export const register = async (req, res) => {
   try {
     const { email, password, name } = req.body;
 
-    const verifiedUntil = verifiedEmails.get(email);
-    if (!verifiedUntil || Date.now() > verifiedUntil) {
-      return res.status(403).json({ error: 'Email not verified.Please complete OTP verification.' });
-    }
+    // const verifiedUntil = verifiedEmails.get(email);
+    // if (!verifiedUntil || Date.now() > verifiedUntil) {
+    //   return res.status(403).json({ error: 'Email not verified.Please complete OTP verification.' });
+    // }
 
-    verifiedEmails.delete(email);
+    // verifiedEmails.delete(email);
 
     const user = await registerUser(req.body)
     

@@ -42,7 +42,7 @@ enum user_role {
 
 model Event {
   id          String   @id @default(cuid())
-  title       String
+  title       String @unique
   description String
   date        DateTime
   location    String
@@ -56,15 +56,17 @@ model Event {
   transactions Transaction[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@unique([createdBy, title])
 }
 
 model Transaction {
   id        String   @id @default(cuid())
   eventId   String
   userId    String   @db.Uuid 
-  amount    Float
+  amount    Float 
   status    PaymentStatus @default(PENDING)
-  razorpayOrderId   String?
+  razorpayOrderId   String? @unique
   razorpayPaymentId String?
   event     Event    @relation(fields: [eventId], references: [id])
   user      users    @relation(fields: [userId], references: [id]) 
