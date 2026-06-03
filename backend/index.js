@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import routes from "./src/routes/index.js"
 import { connectRedis } from './src/config/redis.js';
+import { cleanPending } from './src/jobs/cleaningPending.js';
 
 dotenv.config();
 const app = express();
@@ -43,6 +44,7 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT,async () => {
+  cleanPending();
   await connectRedis();
   console.log(`🚀 Server running on port ${PORT}`);
 });
