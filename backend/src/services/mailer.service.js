@@ -3,7 +3,8 @@ import { transporter } from '../config/mailer.js';
 
 export async function sendEmail({ to, subject, text, html }) {
   try {
-    const info = await transporter.sendMail({
+    const transport =  transporter()
+    const info = await transport.sendMail({
       from: `"Fundo Team" <${process.env.GMAIL_USER}>`,
       to,
       subject,

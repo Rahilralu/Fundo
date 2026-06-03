@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
 import prisma from "../config/psql.js";
-import { sendEmail } from './mailer.js';
+import { sendEmail } from './mailer.service.js';
 
 //Create event
 export async function createEventService({ title, description, date, location, price, capacity, type, image, createdBy, creatorEmail }) {

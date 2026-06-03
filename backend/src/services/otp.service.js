@@ -1,5 +1,5 @@
 import { generateOTP } from '../utils/otp.js';
-import { sendEmail } from '../services/mailer.js';
+import { sendEmail } from './mailer.service.js';
 import redis from '../config/redis.js'
 
 const OTP_TTL = 5 * 60

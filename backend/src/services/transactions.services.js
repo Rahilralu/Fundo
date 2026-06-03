@@ -1,6 +1,7 @@
 import prisma from "../config/psql.js";
 import razorpay from "../config/razorpay.js";
 import crypto from 'crypto';
+import { emailQueue } from "../queues/emailQueue.js";
 
 export async function createOrderServices({ eventId, userId }) {
   try {
@@ -44,12 +45,23 @@ export async function verifyOrderServices({razorpayOrderId , razorpayPaymentId,r
     if(razorpaySignature !== expectedSignature)throw new Error("INVALID SIGNATURE");
 
     const transaction = await prisma.Transaction.update({
-        where: { razorpayOrderId : razorpayOrderId },
-        data : {
-            razorpayPaymentId: razorpayPaymentId,
-            status : "SUCCESS",
-        },
-    });
+      where: { razorpayOrderId },
+      data: {
+        razorpayPaymentId,
+        status: 'SUCCESS'
+      },
+      include: {
+        user: { select: { email: true, name: true } },
+        event: { select: { title: true } }
+      }
+    })
+
+    await emailQueue.add('sendConfirmation',{
+      to: transaction.user.email,
+      userName: transaction.user.name,
+      eventName: transaction.event.title,
+      amount: transaction.amount
+    })
 
     return transaction;
 }
