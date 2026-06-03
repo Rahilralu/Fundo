@@ -5,18 +5,18 @@ import {
   logoutUser,
   getMe
 } from "../services/auth.service.js"
-import { otpStore, verifiedEmails } from '../store/otpStore.js' 
+import redis from '../config/redis.js'
 
 export const register = async (req, res) => {
   try {
     const { email, password, name } = req.body;
 
-    const verifiedUntil = verifiedEmails.get(email);
-    if (!verifiedUntil || Date.now() > verifiedUntil) {
-      return res.status(403).json({ error: 'Email not verified.Please complete OTP verification.' });
+    const isVerified = await redis.get(`verified:${email}`)
+    if (!isVerified) {
+      return res.status(403).json({ error: 'Email not verified. Please complete OTP verification.' })
     }
 
-    verifiedEmails.delete(email);
+    await redis.del(`verified:${email}`);
 
     const user = await registerUser(req.body)
     

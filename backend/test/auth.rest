@@ -59,3 +59,36 @@ Content-Type: application/json
     "email":"rahilnazar1234@gmail.com",
     "otp":"428810"
 }
+
+###
+POST {{baseUrl}}/api/auth/send-otp
+Content-Type: application/json
+
+{ "email": "test@gmail.com" }
+
+###
+POST {{baseUrl}}/api/auth/send-otp
+Content-Type: application/json
+
+{
+  "email": "tested.3.3.54@gmail.com"
+}
+
+###
+POST {{baseUrl}}/api/auth/verify-otp   
+Content-Type: application/json
+
+{ 
+    "email": "tested.3.3.54@gmail.com", 
+    "otp": "395816" 
+}
+
+###
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Test User",
+  "email": "tested.3.3.54@gmail.com",
+  "password": "Test@1234"
+}

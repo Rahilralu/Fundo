@@ -9,13 +9,16 @@ export async function sendOtp(req, res) {
   } catch (err) {
     res.status(500).json({ error: 'Failed to send OTP' });
   }
+  finally {
+    res.json({ message: 'If this email exists, an OTP has been sent' })
+  }
 }
 
-export function verifyOtp(req, res) {
+export async function verifyOtp(req, res) {
   try {
     const { email, otp } = req.body;
     if (!email || !otp) return res.status(400).json({ error: 'Email and OTP required' });
-    verifyOtpService(email, otp);
+    await verifyOtpService(email, otp);
     res.json({ message: 'OTP verified' });
   } catch (err) {
     const map = {

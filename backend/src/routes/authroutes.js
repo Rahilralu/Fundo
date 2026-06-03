@@ -6,29 +6,25 @@ import {
   logout,
   me
 } from "../controllers/auth.controllers.js"
-import { otpStore, verifiedEmails } from '../store/otpStore.js';
 import { authenticate_token,cookie_validator } from "../middleware/auth.js"
-import { generateOTP } from "../utils/otp.js";
-import { sendEmail } from "../services/mailer.js";
 import { sendOtp,verifyOtp } from "../controllers/otp.controllers.js";
+import { authLimiter } from "../middleware/ratelimiter.js"
 
 const router = express.Router()
 // Register
 
-router.post("/register", register)
+router.post("/register",authLimiter, register)
 // Login
-router.post("/login", login)
+router.post("/login", authLimiter,login)
 // Refresh access token
-router.post("/refresh", cookie_validator) 
-router.post("/refresh", refresh)
+router.post("/refresh", cookie_validator,refresh) 
 // Logout
 router.post("/logout", logout)
 // Get current user (protected)
 router.get("/me", authenticate_token, me)
 
+router.post('/send-otp',authLimiter,sendOtp)
 
-// router.post('/send-otp',sendOtp)
-
-// router.post('/verify-otp',verifyOtp);
+router.post('/verify-otp',authLimiter,verifyOtp);
 
 export default router

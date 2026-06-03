@@ -1,11 +1,15 @@
 import { generateOTP } from '../utils/otp.js';
 import { sendEmail } from '../services/mailer.js';
-import { otpStore, verifiedEmails } from '../store/otpStore.js';
+import redis from '../config/redis.js'
+
+const OTP_TTL = 5 * 60
+const VERIFIED_TTL = 10 * 60
 
 export async function sendOtpService(email) {
   const otp = generateOTP();
-  const expiresAt = Date.now() + 5 * 60 * 1000;
-  otpStore.set(email, { otp, attempts: 0, expiresAt });
+ 
+  const data = JSON.stringify({ otp, attempts: 0 })
+  await redis.set(`otp:${email}`, data, { EX: OTP_TTL })
 
   await sendEmail({
     to: email,
@@ -15,23 +19,24 @@ export async function sendOtpService(email) {
   });
 }
 
-export function verifyOtpService(email, otp) {
-  const record = otpStore.get(email);
 
-  if (!record) throw new Error('OTP_NOT_FOUND');
-  if (Date.now() > record.expiresAt) {
-    otpStore.delete(email);
-    throw new Error('OTP_EXPIRED');
-  }
+export async function verifyOtpService(email, otp) {
+  const raw = await redis.get(`otp:${email}`);
+  if (!raw) throw new Error('OTP_NOT_FOUND');
+
+  const record = JSON.parse(raw);
+
   if (record.attempts >= 3) {
-    otpStore.delete(email);
+    await redis.del(`otp:${email}`);
     throw new Error('TOO_MANY_ATTEMPTS');
   }
+
   if (record.otp !== otp) {
     record.attempts++;
+    await redis.set(`otp:${email}`, JSON.stringify(record), { KEEPTTL: true });
     throw new Error('INVALID_OTP');
   }
 
-  otpStore.delete(email);
-  verifiedEmails.set(email, Date.now() + 10 * 60 * 1000);
+  await redis.del(`otp:${email}`);
+  await redis.set(`verified:${email}`, '1', { EX: VERIFIED_TTL });
 }

@@ -37,7 +37,6 @@ export const authenticate_token = (req, res, next) => {
   }
 }
 
-// ── Role guard — use after authenticate_token ──
 // Usage: router.get('/route', authenticate_token, authorise('organiser'), handler)
 export const authorise = (...roles) => {
   return (req, res, next) => {
