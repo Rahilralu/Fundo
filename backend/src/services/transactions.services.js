@@ -2,6 +2,7 @@ import prisma from "../config/psql.js";
 import razorpay from "../config/razorpay.js";
 import crypto from 'crypto';
 import { emailQueue } from "../queues/emailQueue.js";
+import { emitPaymentConfirmed } from '../sockets/emitters.js'
 
 export async function createOrderServices({ eventId, userId }) {
   try {
@@ -52,7 +53,7 @@ export async function verifyOrderServices({razorpayOrderId , razorpayPaymentId,r
       },
       include: {
         user: { select: { email: true, name: true } },
-        event: { select: { title: true } }
+        event: { select: { title: true, createdBy: true } }
       }
     })
 
@@ -61,6 +62,12 @@ export async function verifyOrderServices({razorpayOrderId , razorpayPaymentId,r
       userName: transaction.user.name,
       eventName: transaction.event.title,
       amount: transaction.amount
+    })
+
+    emitPaymentConfirmed(transaction.event.createdBy, {
+      userName: transaction.user.name,
+      amount: transaction.amount,
+      eventName: transaction.event.title
     })
 
     return transaction;

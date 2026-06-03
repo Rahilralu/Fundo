@@ -1,15 +1,27 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import helmet from "helmet";
-import rateLimit from "express-rate-limit";
+import { createServer } from 'http';
+import { Server } from 'socket.io';
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import routes from "./src/routes/index.js"
 import { redisConnection } from './src/config/redis.js';
 import { cleanPending } from './src/jobs/cleaningPending.js';
+import { globalLimiter } from './src/middleware/ratelimiter.js';
 
 dotenv.config();
 const app = express();
+
+const httpServer = createServer(app);
+
+export const io = new Server(httpServer, {
+  cors: {
+    origin: ['http://localhost:5173', 'http://localhost:3000'],
+    credentials: true
+  }
+})
+
 
 // ✅ CORS first — before everything
 app.use(cors({
@@ -25,16 +37,10 @@ app.use(cors({
 }));
 
 
-app.use(express.json());
+app.use(express.json({ limit: '10kb'}));
 app.use(cookieParser());
 app.use(helmet());
-
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  message: { error: 'Too many requests, slow down' }
-});
-app.use(limiter);
+app.use(globalLimiter)
 
 app.use('/api', routes);
 app.use((err, req, res, next) => {
@@ -43,7 +49,7 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT,async () => {
+httpServer.listen(PORT,async () => {
   cleanPending();
   await redisConnection();
   console.log(`🚀 Server running on port ${PORT}`);
