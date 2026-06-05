@@ -1,3 +1,4 @@
+import 'dotenv/config'; 
 import { Worker } from 'bullmq'
 import { bullConnection } from '../config/bullmq.js'
 import { sendEmail } from '../services/mailer.service.js'

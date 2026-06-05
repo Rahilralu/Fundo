@@ -6,22 +6,70 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Checkbox } from './ui/checkbox';
+import { z } from 'zod';
+
+const passwordSchema = z.string()
+  .min(8, { message: "Password must be at least 8 characters long" })
+  .refine((val) => /[A-Z]/.test(val), {
+    message: "Password must contain at least one uppercase letter",
+  })
+  .refine((val) => /[^A-Za-z0-9]/.test(val), {
+    message: "Password must contain at least one special character",
+  });
 
 export default function SignUpCard({ onRegister, onSwitchToLogin }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState('');
   const [password, setPassword] = useState('');
+  const [passwordErrors, setPasswordErrors] = useState([]);
   const [showPassword, setShowPassword] = useState(false);
   const [shake, setShake] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+    if (emailError) setEmailError('');
+  };
+
+  const handlePasswordChange = (e) => {
+    const val = e.target.value;
+    setPassword(val);
+    if (val === '') {
+      setPasswordErrors([]);
+      return;
+    }
+    const result = passwordSchema.safeParse(val);
+    if (!result.success) {
+      setPasswordErrors(result.error.errors.map(err => err.message));
+    } else {
+      setPasswordErrors([]);
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setEmailError('');
     if (!email || !password || !name) {
       setShake(true);
       setTimeout(() => setShake(false), 500);
       return;
     }
-    onRegister(name, email, password); // ← was onLogin(email)
+    const result = passwordSchema.safeParse(password);
+    if (!result.success) {
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
+      setPasswordErrors(result.error.errors.map(err => err.message));
+      return;
+    }
+    const regError = await onRegister(name, email, password); // ← was onLogin(email)
+    if (regError) {
+      if (regError.toLowerCase().includes('email') || regError.toLowerCase().includes('already registered')) {
+        setEmailError('Email already registered. Redirecting to login page in 5s...');
+        setTimeout(() => {
+          onSwitchToLogin();
+        }, 5000);
+      }
+    }
   };
 
   return (
@@ -52,10 +100,11 @@ export default function SignUpCard({ onRegister, onSwitchToLogin }) {
         <CardContent className="relative">
           <form onSubmit={handleSubmit} className="space-y-3">
             <div className="space-y-1.5 relative group">
-              <label className="text-xs font-medium text-white/90">Full Name</label>
+              <label htmlFor="signup-name" className="text-xs font-medium text-white/90">Full Name</label>
               <div className="relative">
                 <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 group-focus-within:text-brand-400 transition-colors" />
                 <Input
+                  id="signup-name"
                   type="text"
                   name="name"
                   autoComplete="name"
@@ -68,33 +117,41 @@ export default function SignUpCard({ onRegister, onSwitchToLogin }) {
             </div>
 
             <div className="space-y-1.5 relative group">
-              <label className="text-xs font-medium text-white/90">Email</label>
+              <label htmlFor="signup-email" className="text-xs font-medium text-white/90">Email</label>
               <div className="relative">
                 <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 group-focus-within:text-brand-400 transition-colors" />
                 <Input
+                  id="signup-email"
                   type="email"
                   name="email"
                   autoComplete="username"
                   placeholder="Enter your email"
                   className="pl-10 h-11 rounded-xl bg-black/20 border-white/5 text-white placeholder:text-white/30 focus:border-brand-400 focus:bg-black/40 transition-all text-xs"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={handleEmailChange}
                 />
               </div>
+              {emailError && (
+                <p className="text-[10px] text-red-400/90 mt-1.5 pl-1 flex items-center gap-1.5 font-medium leading-normal">
+                  <span className="w-1.5 h-1.5 bg-red-400 rounded-full shrink-0 animate-pulse" />
+                  {emailError}
+                </p>
+              )}
             </div>
 
             <div className="space-y-1.5 relative group">
-              <label className="text-xs font-medium text-white/90">Password</label>
+              <label htmlFor="signup-password" className="text-xs font-medium text-white/90">Password</label>
               <div className="relative">
                 <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 group-focus-within:text-brand-400 transition-colors" />
                 <Input
+                  id="signup-password"
                   type={showPassword ? "text" : "password"}
                   name="password"
                   autoComplete="new-password"
                   placeholder="Enter your password"
                   className="pl-10 pr-10 h-11 rounded-xl bg-black/20 border-white/5 text-white placeholder:text-white/30 focus:border-brand-400 focus:bg-black/40 transition-all text-xs"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={handlePasswordChange}
                 />
                 <button
                   type="button"
@@ -104,6 +161,16 @@ export default function SignUpCard({ onRegister, onSwitchToLogin }) {
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
+              {passwordErrors.length > 0 && (
+                <div className="mt-1.5 space-y-1 pl-1">
+                  {passwordErrors.map((msg, index) => (
+                    <p key={index} className="text-[10px] text-red-400/90 flex items-center gap-1.5 font-medium leading-none">
+                      <span className="w-1 h-1 bg-red-400 rounded-full shrink-0" />
+                      {msg}
+                    </p>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="flex items-center space-x-2 pt-1 pb-1">

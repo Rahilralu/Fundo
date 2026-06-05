@@ -1,4 +1,3 @@
-import nodemailer from 'nodemailer';
 import { transporter } from '../config/mailer.js';
 
 export async function sendEmail({ to, subject, text, html }) {

@@ -6,21 +6,35 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Checkbox } from './ui/checkbox';
+import { useToast } from '../context/ToastContext';
 
 export default function LoginCard({ onLogin, onSwitchToSignUp }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [shake, setShake] = useState(false);
+  const { addToast } = useToast();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email || !password) {
       setShake(true);
       setTimeout(() => setShake(false), 500);
+      addToast('Please fill in all fields', 'error');
       return;
     }
-    onLogin(email,password);
+    try {
+      const error = await onLogin(email, password);
+      if (error) {
+        setShake(true);
+        setTimeout(() => setShake(false), 500);
+        addToast(error, 'error');
+      } else {
+        addToast('Logged in successfully!', 'success');
+      }
+    } catch (err) {
+      addToast('An unexpected error occurred during login.', 'error');
+    }
   };
 
   return (
@@ -51,10 +65,11 @@ export default function LoginCard({ onLogin, onSwitchToSignUp }) {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-3">
             <div className="space-y-1.5 relative group">
-              <label className="text-xs font-medium text-white/90">Email</label>
+              <label htmlFor="login-email" className="text-xs font-medium text-white/90">Email</label>
               <div className="relative">
                 <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 group-focus-within:text-brand-400 transition-colors" />
                 <Input
+                  id="login-email"
                   type="email"
                   name="email"
                   autoComplete="username"
@@ -67,10 +82,11 @@ export default function LoginCard({ onLogin, onSwitchToSignUp }) {
             </div>
 
             <div className="space-y-1.5 relative group">
-              <label className="text-xs font-medium text-white/90">Password</label>
+              <label htmlFor="login-password" className="text-xs font-medium text-white/90">Password</label>
               <div className="relative">
                 <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 group-focus-within:text-brand-400 transition-colors" />
                 <Input
+                  id="login-password"
                   type={showPassword ? "text" : "password"}
                   name="password"
                   autoComplete="current-password"
@@ -96,9 +112,13 @@ export default function LoginCard({ onLogin, onSwitchToSignUp }) {
                   Remember me
                 </label>
               </div>
-              <a href="#" className="text-xs text-[#a385ff] hover:text-white transition-colors">
+              <button
+                type="button"
+                onClick={() => addToast('Forgot password flow is not available in demonstration mode. Please use your standard credentials.', 'info')}
+                className="text-xs text-[#a385ff] hover:text-white transition-colors bg-transparent border-none cursor-pointer p-0"
+              >
                 Forgot Password?
-              </a>
+              </button>
             </div>
 
             <Button type="submit" className="w-full h-11 rounded-xl bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-500 font-semibold text-sm mt-1">

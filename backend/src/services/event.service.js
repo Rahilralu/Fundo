@@ -52,7 +52,9 @@ export async function getPublicEventsService() {
         where: { type: 'PUBLIC' },
         include: {
             user: { select: { id : true , name : true , email : true } },
-            _count : { select: { transactions: true }},
+            _count : { select: { transactions: {
+              where:{status : "SUCCESS"}
+            } }},
         },
         orderBy : { createdAt : "desc" },
     });

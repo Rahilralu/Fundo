@@ -7,10 +7,8 @@ export async function sendOtp(req, res) {
     await sendOtpService(email);
     res.json({ message: 'OTP sent' });
   } catch (err) {
+    console.error('sendOtp error:', err)
     res.status(500).json({ error: 'Failed to send OTP' });
-  }
-  finally {
-    res.json({ message: 'If this email exists, an OTP has been sent' })
   }
 }
 

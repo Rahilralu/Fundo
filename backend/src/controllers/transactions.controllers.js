@@ -24,7 +24,7 @@ export async function verifyOrder(req,res){
 
 export async function getUserTransaction(req,res){
     try{
-        const transaction = await getUserTransactionService({userId:req.user.id});
+        const transaction = await getUserTransactionService({userId:req.user.userId});
         res.status(200).json({ success  :true  , transaction });
     } catch(err){
         res.status(500).json({ error :"Failed to fetch user transacations "});

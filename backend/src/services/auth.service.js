@@ -47,6 +47,7 @@ export const loginUser = async ({ email,password }) => {
             where:{email}
         })
 
+
         if(!user){
             throw { status: 401, message: "Invalid email or password" }
         }

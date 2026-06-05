@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import Navbar from './components/Navbar';
@@ -9,14 +9,17 @@ import EventsList from './pages/EventsList';
 import EventDetail from './pages/EventDetail';
 import Register from './pages/Register';
 import OTP from './pages/OTP';
-import Dashboard from './pages/Dashboard';
 import PrivateInvite from './pages/PrivateInvite';
+import JoinWithCode from './pages/JoinWithCode';
 import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './components/LoginPage';
 
 import Contact from './pages/Contact';
 import About from './pages/About';
 import Features from './pages/Features';
+import AllTransactions from './pages/AllTransactions';
+import Terms from './pages/Terms';
+import RefundPolicy from './pages/RefundPolicy';
 
 // Wrapper for the existing LoginPage to integrate with React Router and AuthContext
 function LoginRoute() {
@@ -26,23 +29,32 @@ function LoginRoute() {
 
 // Wrapper for layout that includes Navbar/Footer
 function MainLayout({ children }) {
-  const location = useLocation();
-  const isDashboard = location.pathname.startsWith('/dashboard');
-  
   return (
-    <div className="flex flex-col min-h-screen font-sans bg-[#0D0B1A] text-white selection:bg-[#8155ff]/30">
+    <div className="flex flex-col min-h-screen font-sans bg-[#050508] text-white selection:bg-[#7c5cfc]/30">
       <Navbar />
       <main className="flex-grow">
         {children}
       </main>
-      {!isDashboard && <Footer />}
+      <Footer />
     </div>
   );
+}
+
+// Helper component to scroll to top on page transition
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
 }
 
 function App() {
   return (
     <Router>
+      <ScrollToTop />
       <ToastProvider>
         <AuthProvider>
           <Routes>
@@ -57,6 +69,8 @@ function App() {
                   <Route path="/contact" element={<Contact />} />
                   <Route path="/about" element={<About />} />
                   <Route path="/features" element={<Features />} />
+                  <Route path="/terms" element={<Terms />} />
+                  <Route path="/refund-policy" element={<RefundPolicy />} />
                   <Route 
                     path="/events" 
                     element={
@@ -82,10 +96,18 @@ function App() {
                     } 
                   />
                   <Route 
-                    path="/dashboard/*" 
+                    path="/join" 
                     element={
                       <ProtectedRoute>
-                        <Dashboard />
+                        <JoinWithCode />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/transactions" 
+                    element={
+                      <ProtectedRoute>
+                        <AllTransactions />
                       </ProtectedRoute>
                     } 
                   />

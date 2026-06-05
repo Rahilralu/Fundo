@@ -9,7 +9,7 @@ export async function sendOtpService(email) {
   const otp = generateOTP();
  
   const data = JSON.stringify({ otp, attempts: 0 })
-  await redis.set(`otp:${email}`, data, { EX: OTP_TTL })
+  await redis.set(`otp:${email}`, data, 'EX', OTP_TTL)
 
   await sendEmail({
     to: email,
@@ -19,10 +19,10 @@ export async function sendOtpService(email) {
   });
 }
 
-
 export async function verifyOtpService(email, otp) {
   const raw = await redis.get(`otp:${email}`);
   if (!raw) throw new Error('OTP_NOT_FOUND');
+  
 
   const record = JSON.parse(raw);
 
@@ -33,10 +33,10 @@ export async function verifyOtpService(email, otp) {
 
   if (record.otp !== otp) {
     record.attempts++;
-    await redis.set(`otp:${email}`, JSON.stringify(record), { KEEPTTL: true });
+    await redis.set(`otp:${email}`, JSON.stringify(record), 'KEEPTTL');
     throw new Error('INVALID_OTP');
   }
 
   await redis.del(`otp:${email}`);
-  await redis.set(`verified:${email}`, '1', { EX: VERIFIED_TTL });
+  await redis.set(`verified:${email}`, '1', 'EX', VERIFIED_TTL);
 }

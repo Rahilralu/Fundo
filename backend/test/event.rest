@@ -17,7 +17,7 @@ Form-data:
 GET {{baseUrl}}/api/events
 
 ###
-GET {{baseUrl}}/api/events/cmpm771tq0000ijqqzt0ocn9e
+GET {{baseUrl}}/api/events/cmpm92pmd0002ij1l1umzo0pe
 
 ###
 GET {{baseUrl}}/api/dashboard/stats

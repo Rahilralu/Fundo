@@ -6,10 +6,18 @@ import {
   getMe
 } from "../services/auth.service.js"
 import redis from '../config/redis.js'
+import prisma from '../config/psql.js'
 
 export const register = async (req, res) => {
   try {
     const { email, password, name } = req.body;
+
+    const existing = await prisma.users.findUnique({
+      where: { email }
+    })
+    if (existing) {
+      return res.status(409).json({ success: false, message: "Email already registered" })
+    }
 
     const isVerified = await redis.get(`verified:${email}`)
     if (!isVerified) {
@@ -42,7 +50,7 @@ export const login = async (req, res) => {
     res.cookie("refresh_token", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",           // set false in local dev if no HTTPS
-      sameSite: "Strict",
+      sameSite: "Lax",
       maxAge: 7 * 24 * 60 * 60 * 1000
     })
 
@@ -70,7 +78,7 @@ export const refresh = async (req, res) => {
     res.cookie("refresh_token", newRefreshToken, {
       httpOnly: true,
       secure: false,
-      sameSite: "Strict",
+      sameSite: "Lax",
       maxAge: 7 * 24 * 60 * 60 * 1000
     })
 

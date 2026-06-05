@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, User, Menu, X } from 'lucide-react';
+import { LogOut, Menu, X, QrCode } from 'lucide-react';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -18,13 +18,14 @@ export default function Navbar() {
     { name: 'Home', path: '/' },
     { name: 'Events', path: '/events' },
     { name: 'Features', path: '/features' },
-    { name: 'About Us', path: '/about' },
+    { name: 'About', path: '/about' },
     { name: 'Contact', path: '/contact' },
+    ...(user ? [{ name: 'Transactions', path: '/transactions' }] : [])
   ];
 
   const isActive = (path) => {
     if (path.includes('#')) {
-      return location.pathname === '/' && location.hash === path.substring(path.indexOf('#'));
+      return false; // hash links aren't "active" in a traditional sense
     }
     if (path === '/') {
       return location.pathname === '/' && !location.hash;
@@ -32,27 +33,37 @@ export default function Navbar() {
     return location.pathname.startsWith(path);
   };
 
+  const isLanding = location.pathname === '/';
+
   return (
-    <nav className="bg-transparent pt-6 pb-4 px-6 md:px-12 z-40 relative w-full">
+    <nav className={
+      isLanding
+        ? 'absolute top-0 left-0 w-full pt-5 pb-4 px-6 md:px-12 z-50'
+        : 'sticky top-0 bg-[#050508]/80 backdrop-blur-xl pt-5 pb-4 px-6 md:px-12 z-50 w-full border-b border-white/[0.04]'
+    }>
       <div className="max-w-[1400px] mx-auto flex items-center justify-between">
-        <Link className="flex items-center gap-3" to="/">
-          <div className="w-8 h-8 rounded-[10px] bg-gradient-to-br from-[#8155ff] to-[#6035f5] flex items-center justify-center shadow-lg shadow-purple-500/30">
-            <span className="font-bold text-[16px] text-white italic tracking-tighter" style={{ fontFamily: 'serif' }}>F</span>
-          </div>
-          <span className="font-bold text-xl tracking-tight text-white hidden sm:block">Fundo</span>
+        {/* Logo */}
+        <Link className="flex items-center gap-2.5" to="/">
+          <img 
+            src="/logo.png" 
+            alt="Fundo Logo" 
+            className="w-10 h-10 object-contain" 
+          />
+          <span className="font-extrabold text-xl tracking-tight text-white hidden sm:block bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-purple-200">
+            Fundo
+          </span>
         </Link>
 
-        {/* Desktop Nav */}
-        <div className="hidden lg:flex items-center gap-8">
+        {/* Desktop Links */}
+        <div className="hidden lg:flex items-center gap-7">
           {navLinks.map((link) => {
             const active = isActive(link.path);
             return (
               <Link
                 key={link.name}
                 to={link.path}
-                className={`text-[13px] font-medium transition-colors relative pb-1 ${
-                  active ? 'text-white' : 'text-white/60 hover:text-white'
-                }`}
+                className={`text-[13px] font-medium transition-colors relative pb-0.5 ${active ? 'text-white' : 'text-white/55 hover:text-white'
+                  }`}
               >
                 {link.name}
                 {active && (
@@ -63,43 +74,47 @@ export default function Navbar() {
           })}
         </div>
 
-        <div className="hidden lg:flex items-center gap-4">
+        {/* Desktop Auth */}
+        <div className="hidden lg:flex items-center gap-3">
           {user ? (
             <div className="flex items-center gap-4">
-              <Link to="/dashboard" className="text-white/60 hover:text-white transition-colors text-sm font-medium">
-                Dashboard
-              </Link>
-              <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full border border-white/5">
-                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-500 to-[#8155ff] text-white flex items-center justify-center font-bold text-xs shadow-md">
+              <button 
+                onClick={() => navigate('/join')} 
+                className="flex items-center gap-1.5 bg-[#8155ff]/10 border border-[#8155ff]/20 text-[#a855f7] hover:bg-[#8155ff] hover:text-white px-4 py-1.5 rounded-full font-semibold text-[12px] transition-all cursor-pointer"
+              >
+                <QrCode size={13} /> Join with code
+              </button>
+              <div className="flex items-center gap-2 bg-white/[0.04] px-3 py-1.5 rounded-full border border-white/[0.06]">
+                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-500 to-[#8155ff] text-white flex items-center justify-center font-bold text-[10px]">
                   {user.name ? user.name.charAt(0) : 'U'}
                 </div>
-                <span className="text-sm font-medium text-white/90">{user.name || user.email?.split('@')[0]}</span>
+                <span className="text-[13px] font-medium text-white/85">{user.name || user.email?.split('@')[0]}</span>
               </div>
-              <button onClick={handleLogout} className="text-white/40 hover:text-red-400 transition-colors flex items-center gap-2 text-sm font-medium h-9 px-3 border border-transparent hover:border-red-500/30 hover:bg-white/5 rounded-full">
-                <LogOut size={16} />
+              <button onClick={handleLogout} className="text-white/35 hover:text-red-400 transition-colors flex items-center h-8 px-2.5 rounded-full hover:bg-white/[0.04]">
+                <LogOut size={15} />
               </button>
             </div>
           ) : (
             <>
-              <Link to="/login" className="text-white hover:bg-white/5 border border-white/20 px-6 py-2 rounded-full font-medium transition-all text-[13px]">
-                Log in
+              <Link to="/login" className="text-white/80 hover:text-white hover:bg-white/[0.04] border border-white/15 px-5 py-2 rounded-full font-medium transition-all text-[13px]">
+                Log In
               </Link>
-              <Link to="/register" className="bg-gradient-to-r from-[#8155ff] to-[#6035f5] text-white px-6 py-2 rounded-full font-medium hover:opacity-90 transition-opacity shadow-lg shadow-purple-500/20 text-[13px]">
+              <Link to="/register" className="bg-gradient-to-r from-[#8155ff] to-[#6e44e5] text-white px-5 py-2 rounded-full font-semibold hover:opacity-90 transition-opacity shadow-lg shadow-purple-500/20 text-[13px]">
                 Get Started
               </Link>
             </>
           )}
         </div>
 
-        {/* Mobile Nav Toggle */}
-        <button className="lg:hidden text-white/60 hover:text-white transition-colors border border-white/10 p-2 rounded-lg bg-white/5" onClick={() => setIsOpen(!isOpen)}>
+        {/* Mobile Toggle */}
+        <button className="lg:hidden text-white/55 hover:text-white transition-colors border border-white/10 p-2 rounded-lg bg-white/[0.03]" onClick={() => setIsOpen(!isOpen)}>
           {isOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
       </div>
 
-      {/* Mobile Nav */}
+      {/* Mobile Menu */}
       {isOpen && (
-        <div className="lg:hidden absolute top-full left-0 w-full bg-[#0D0B1A]/95 backdrop-blur-2xl border-b border-white/5 py-4 px-6 flex flex-col gap-4 shadow-2xl z-50">
+        <div className="lg:hidden absolute top-full left-0 w-full bg-[#0D0B1A]/97 backdrop-blur-2xl border-b border-white/[0.06] py-5 px-6 flex flex-col gap-3 shadow-2xl z-50">
           {navLinks.map((link) => {
             const active = isActive(link.path);
             return (
@@ -107,32 +122,34 @@ export default function Navbar() {
                 key={link.name}
                 to={link.path}
                 onClick={() => setIsOpen(false)}
-                className={`font-medium text-sm py-2 ${
-                  active ? 'text-white border-l-2 border-[#8155ff] pl-3 -ml-3' : 'text-white/80 hover:text-white'
-                }`}
+                className={`font-medium text-[14px] py-2 ${active ? 'text-white border-l-2 border-[#8155ff] pl-3' : 'text-white/70 hover:text-white'
+                  }`}
               >
                 {link.name}
               </Link>
             );
           })}
-          
-          <div className="h-px bg-white/10 my-2"></div>
-          
+
+          <div className="h-px bg-white/[0.06] my-2" />
+
           {user ? (
-            <>
-              <Link to="/dashboard" onClick={() => setIsOpen(false)} className="text-white/80 hover:text-white font-medium text-sm py-2">
-                Dashboard
-              </Link>
-              <button onClick={() => { handleLogout(); setIsOpen(false); }} className="text-left text-red-400 font-medium text-sm py-2 flex items-center gap-2">
-                <LogOut size={16} /> Logout
+            <div className="flex flex-col gap-2.5 mt-2">
+              <button 
+                onClick={() => { navigate('/join'); setIsOpen(false); }} 
+                className="flex items-center justify-center gap-1.5 bg-[#8155ff]/10 border border-[#8155ff]/20 text-[#a855f7] hover:bg-[#8155ff] hover:text-white py-2.5 rounded-full font-semibold text-[13px] transition-all w-full cursor-pointer"
+              >
+                <QrCode size={14} /> Join with code
               </button>
-            </>
+              <button onClick={() => { handleLogout(); setIsOpen(false); }} className="text-left text-red-400/80 font-medium text-[14px] py-2.5 flex items-center gap-2 hover:text-red-400 border-t border-white/[0.06] mt-1.5 pt-2.5">
+                <LogOut size={15} /> Logout
+              </button>
+            </div>
           ) : (
-            <div className="flex flex-col gap-3 mt-2">
-              <Link to="/login" onClick={() => setIsOpen(false)} className="text-white text-center border border-white/20 px-6 py-2.5 rounded-full font-medium transition-all text-sm hover:bg-white/5">
-                Log in
+            <div className="flex flex-col gap-3 mt-1">
+              <Link to="/login" onClick={() => setIsOpen(false)} className="text-white text-center border border-white/15 px-6 py-2.5 rounded-full font-medium transition-all text-[14px] hover:bg-white/[0.04]">
+                Log In
               </Link>
-              <Link to="/register" onClick={() => setIsOpen(false)} className="bg-gradient-to-r from-[#8155ff] to-[#6035f5] text-white text-center px-6 py-2.5 rounded-full font-medium shadow-lg shadow-purple-500/20 text-sm">
+              <Link to="/register" onClick={() => setIsOpen(false)} className="bg-gradient-to-r from-[#8155ff] to-[#6e44e5] text-white text-center px-6 py-2.5 rounded-full font-semibold shadow-lg shadow-purple-500/20 text-[14px]">
                 Get Started
               </Link>
             </div>

@@ -1,0 +1,11 @@
+{
+  "name": "fundo",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "user-portal",
+    "organiser-portal",
+    "admin-panel",
+    "backend"
+  ]
+}
