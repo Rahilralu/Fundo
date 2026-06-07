@@ -18,7 +18,11 @@ const httpServer = createServer(app);
 
 export const io = new Server(httpServer, {
   cors: {
-    origin: ['http://localhost:5173', 'http://localhost:3000'],
+    origin: [
+      'http://localhost:5173',
+      'http://localhost:3000',
+      'https://fundo-doe.pages.dev'
+    ],
     credentials: true
   }
 })
@@ -26,20 +30,18 @@ export const io = new Server(httpServer, {
 
 // ✅ CORS first — before everything
 app.use(cors({
-  origin: function(origin, callback) {
-    const allowed = ['http://localhost:5173', 'http://localhost:3000'];
-    if (!origin || allowed.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(null, true); // allow all for now including file://
-    }
-  },
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'https://fundo-doe.pages.dev'
+  ],
   credentials: true,
 }));
 
 
 app.use(express.json({ limit: '10kb'}));
 app.use(cookieParser());
+app.use(passport.initialize()) 
 app.use(helmet());
 app.use(globalLimiter)
 
@@ -48,7 +50,6 @@ app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(err.status || 500).json({ error: err.message || 'Internal server error' });
 });
-app.use(passport.initialize())
 
 const PORT = process.env.PORT || 5000;
 httpServer.listen(PORT,async () => {

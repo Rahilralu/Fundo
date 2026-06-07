@@ -50,8 +50,8 @@ export const login = async (req, res) => {
     // Set refresh token in cookie
     res.cookie("refresh_token", refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",           // set false in local dev if no HTTPS
-      sameSite: "Lax",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000
     })
 
@@ -78,8 +78,8 @@ export const refresh = async (req, res) => {
     // rotate cookie
     res.cookie("refresh_token", newRefreshToken, {
       httpOnly: true,
-      secure: false,
-      sameSite: "Lax",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000
     })
 
@@ -103,8 +103,8 @@ export const logout = async (req, res) => {
 
     res.clearCookie("refresh_token", {
       httpOnly: true,
-      sameSite: "strict",
-      secure: false,
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // ✅
+      secure: process.env.NODE_ENV === "production", // ✅
       path: "/"
     })
 
@@ -141,12 +141,12 @@ export const googleCallback = async (req, res) => {
   try {
     const { accessToken, refreshToken } = await loginWithGoogle(req.user)
 
-    res.cookie("refresh_token", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000
-    })
+   res.cookie("refresh_token", refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000
+  })
 
     // redirect to frontend with access token in URL
     res.redirect(
