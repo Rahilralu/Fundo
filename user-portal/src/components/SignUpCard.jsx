@@ -30,48 +30,47 @@ export default function SignUpCard({ onRegister, onSwitchToLogin }) {
     setEmail(e.target.value);
     if (emailError) setEmailError('');
   };
-
   const handlePasswordChange = (e) => {
-    const val = e.target.value;
-    setPassword(val);
-    if (val === '') {
-      setPasswordErrors([]);
-      return;
-    }
-    const result = passwordSchema.safeParse(val);
-    if (!result.success) {
-      setPasswordErrors(result.error.errors.map(err => err.message));
-    } else {
-      setPasswordErrors([]);
-    }
-  };
+  const val = e.target.value;
+  setPassword(val);
+  if (val === '') {
+    setPasswordErrors([]);
+    return;
+  }
+  const result = passwordSchema.safeParse(val);
+  if (!result.success) {
+    setPasswordErrors(result.error?.errors?.map(err => err.message) ?? []);
+  } else {
+    setPasswordErrors([]);
+  }
+};
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setEmailError('');
-    if (!email || !password || !name) {
-      setShake(true);
-      setTimeout(() => setShake(false), 500);
-      return;
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setEmailError('');
+  if (!email || !password || !name) {
+    setShake(true);
+    setTimeout(() => setShake(false), 500);
+    return;
+  }
+  const result = passwordSchema.safeParse(password);
+  if (!result.success) {
+    setShake(true);
+    setTimeout(() => setShake(false), 500);
+    setPasswordErrors(result.error?.errors?.map(err => err.message) ?? []);
+    return;
+  }
+  const regError = await onRegister(name, email, password);
+  if (regError) {
+    setEmailError(regError);
+    if (regError.toLowerCase().includes('email') || regError.toLowerCase().includes('already registered')) {
+      setTimeout(() => {
+        onSwitchToLogin();
+      }, 5000);
     }
-    const result = passwordSchema.safeParse(password);
-    if (!result.success) {
-      setShake(true);
-      setTimeout(() => setShake(false), 500);
-      setPasswordErrors(result.error.errors.map(err => err.message));
-      return;
-    }
-    const regError = await onRegister(name, email, password); // ← was onLogin(email)
-    if (regError) {
-      setEmailError(regError);
-      if (regError.toLowerCase().includes('email') || regError.toLowerCase().includes('already registered')) {
-        setTimeout(() => {
-          onSwitchToLogin();
-        }, 5000);
-      }
-    }
-  };
-
+  }
+};
+  
   return (
     <motion.div
       animate={shake ? { x: [-10, 10, -10, 10, 0] } : {}}
