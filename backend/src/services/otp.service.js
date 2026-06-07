@@ -1,6 +1,7 @@
 import { generateOTP } from '../utils/otp.js';
 import { sendEmail } from './mailer.service.js';
 import redis from '../config/redis.js'
+import prisma from '../config/psql.js'
 
 const OTP_TTL = 5 * 60
 const VERIFIED_TTL = 10 * 60
@@ -39,4 +40,16 @@ export async function verifyOtpService(email, otp) {
 
   await redis.del(`otp:${email}`);
   await redis.set(`verified:${email}`, '1', 'EX', VERIFIED_TTL);
+
+  // Mark user as verified in the database if they already exist
+  await prisma.users.updateMany({
+    where: { email },
+    data: { is_verified: true }
+  });
+}
+
+
+export async function resendOtpService(email) {
+  await redis.del(`otp:${email}`);
+  return await sendOtpService(email);
 }

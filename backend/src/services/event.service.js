@@ -51,7 +51,7 @@ export async function getPublicEventsService() {
     return await prisma.Event.findMany({
         where: { type: 'PUBLIC' },
         include: {
-            user: { select: { id : true , name : true , email : true } },
+            user: { select: { id : true , name : true , email : true, avatar: true } },
             _count : { select: { transactions: {
               where:{status : "SUCCESS"}
             } }},
@@ -65,7 +65,7 @@ export async function getEventByIdService(id){
     return await prisma.Event.findUnique({
         where: { id },
         include: {
-            user: {select : { id: true , name: true , email : true }},
+            user: {select : { id: true , name: true , email : true, avatar: true }},
             _count: { select: {transactions : true }},
         },
     })
@@ -106,7 +106,7 @@ export async function deleteEventService(id,userId){
 
 export async function getMyEventsService(userId){
     return await prisma.Event.findMany({
-        where: { createdBy : {userId}},
+        where: { createdBy : userId },
         include:{
             _count : { select : { transactions : true }},
         },

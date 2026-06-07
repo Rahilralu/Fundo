@@ -20,7 +20,7 @@ export async function getDashboardStatsService() {
 }
 
 export async function getMyStatsService(userId){
-    const [ totalUsers,totalTransactions,successfulPayments,amountData ] = await Promise.all([
+    const [ totalEvents,totalTransactions,successfulPayments,amountData ] = await Promise.all([
       prisma.Event.count({ where : {createdBy : userId }}),
       prisma.Transaction.count({ where : { userId }}),
       prisma.Transaction.count({ where : { userId,status : 'SUCCESS' }}),

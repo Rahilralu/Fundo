@@ -39,7 +39,7 @@ export async function getEventById(req,res){
 
 export async function updateEvent(req,res){
     try {
-        const event = await updateEventService(req.params.id,req.user.id,req.body,req.file?.path);
+        const event = await updateEventService(req.params.id,req.user.userId,req.body,req.file?.path);
         res.status(200).json({success : true , event });
     } 
     catch (err) {
@@ -51,7 +51,7 @@ export async function updateEvent(req,res){
 
 export async function deleteEvent(req,res){
     try {
-        const event = await deleteEventService(req.params.id,req.user.id);
+        const event = await deleteEventService(req.params.id,req.user.userId);
         res.status(200).json({ success: true, event });
     } catch (err) {
         if (err.message === 'NOT FOUND') return res.status(404).json({ error: 'Event not found' });
@@ -60,9 +60,9 @@ export async function deleteEvent(req,res){
     }
 }
 
-export async function getMyEvents(userId){
+export async function getMyEvents(req,res){
     try {
-        const events = await getMyEvents(req.user.userId);
+        const events = await getMyEventsService(req.user.userId);
         res.status(200).json({ success: true , events })    
     } 
     catch (err) {

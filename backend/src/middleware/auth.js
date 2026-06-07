@@ -2,6 +2,8 @@ import jwt from "jsonwebtoken"
 import prisma from "../config/psql.js"
 import { generateAccessToken } from "../utils/tokens.js"
 import crypto from "crypto"
+import passport from "../config/passport.js"
+
 
 //Protect routes — verify access token from cookie
 export const authenticate_token = (req, res, next) => {
@@ -114,3 +116,14 @@ export const csrfMiddleware = (req, res, next) => {
 
   next()
 }
+
+
+export const googleAuth = passport.authenticate("google", {
+  scope: ["email", "profile"],
+  session: false
+})
+
+export const googleAuthCallback = passport.authenticate("google", {
+  session: false,
+  failureRedirect: `${process.env.FRONTEND_URL}/login?error=oauth_failed`
+})

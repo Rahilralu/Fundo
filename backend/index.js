@@ -9,6 +9,7 @@ import routes from "./src/routes/index.js"
 import { redisConnection } from './src/config/redis.js';
 import { cleanPending } from './src/jobs/cleaningPending.js';
 import { globalLimiter } from './src/middleware/ratelimiter.js';
+import passport from "./src/config/passport.js"
 
 dotenv.config();
 const app = express();
@@ -47,6 +48,7 @@ app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(err.status || 500).json({ error: err.message || 'Internal server error' });
 });
+app.use(passport.initialize())
 
 const PORT = process.env.PORT || 5000;
 httpServer.listen(PORT,async () => {

@@ -10,47 +10,42 @@ It helps organisers create events, collect online payments via Razorpay, and tra
 College event payments are often handled with cash, screenshots, and scattered messages.
 Fundo provides a single system for:
 
-- creating event registration pages,
-- collecting payments online,
-- recording payment status in the database,
-- viewing transaction history,
-- and controlling access for private events.
+- Creating event registration pages.
+- Collecting payments online via Razorpay.
+- Recording payment status and transactions in a PostgreSQL database.
+- Real-time dashboard analytics for organizers and administrators.
+- Access control validation for event details, profile modifications, and private events.
 
 ---
 
 ## ✅ Implemented Features
 
-- User registration and login with **JWT access tokens** and **refresh token rotation**
-- Protected backend routes for user profile, event management, and transactions
-- Event creation, update, and deletion with **image upload support**
-- Public event listing and event detail retrieval
-- Razorpay **order creation** and **payment verification**
-- Transaction history queries for both current user and all transactions
-- Redis connection + rate limiting for backend request control
-- Tailwind + React frontend with landing page, auth flows, dashboard, and event pages
-- OTP verification UI built into the frontend experience
+- **Robust Authentication**: JWT access tokens (stored in-memory on the client) and refresh token rotation (stored in secure `HttpOnly` cookies).
+- **Google OAuth Login**: Google Social login integration using Passport.js (`passport-google-oauth20`).
+- **End-to-End OTP Verification**: Automatically triggers and verifies 6-digit OTPs using Redis cache and Nodemailer on registration/unverified login flows.
+- **Event Management**: Create, update, and delete events with dynamic Cloudinary image upload support.
+- **Organizer Avatars**: Organizer profiles with customizable avatar uploads, dynamically rendered on all public event cards and details pages.
+- **Security Audited (0 Vulnerabilities)**: Upgraded dependencies workspace-wide (including Cloudinary SDK overrides) to achieve zero vulnerabilities under `npm audit`.
+- **API Access Control**: Strict token verification and authorization checks to protect event updates/deletes and transactions history.
 
 ---
 
 ## 🧱 Tech Stack
 
 ### Backend
-
-- Node.js + Express
-- PostgreSQL + Prisma
-- JWT authentication
-- Redis for connectivity and rate limiting
-- Razorpay SDK for payment orders and verification
-- Cloudinary-backed uploads via multer
-- Helmet, CORS, and express-rate-limit security
+- **Core**: Node.js + Express
+- **Database**: PostgreSQL + Prisma ORM
+- **Cache & Verification**: Redis (for OTPs and verified session keys)
+- **Payments**: Razorpay Node SDK
+- **Uploads**: Multer-Storage-Cloudinary
+- **Security**: Helmet, CORS, Express-Rate-Limit, BCryptJS hashing
 
 ### Frontend
-
-- React 19 + Vite
-- Tailwind CSS
-- Framer Motion for animations
-- React Router DOM for navigation
-- Spline for interactive 3D background visuals
+- **Framework**: React 19 + Vite
+- **Styling**: Tailwind CSS + Vanilla CSS (High-fidelity dark theme)
+- **Visuals**: Spline (interactive 3D hero background asset)
+- **Animations**: Framer Motion
+- **Navigation**: React Router DOM (v7)
 
 ---
 
@@ -62,25 +57,25 @@ fundo/
 │   ├── index.js
 │   ├── package.json
 │   ├── prisma/
+│   │   ├── schema.prisma
+│   │   └── migrations/
 │   ├── src/
-│   │   ├── config/
-│   │   ├── controllers/
-│   │   ├── middleware/
-│   │   ├── routes/
-│   │   ├── services/
-│   │   ├── sockets/
-│   │   ├── store/
-│   │   └── utils/
+│   │   ├── config/       # Passport, Cloudinary, Redis & Razorpay configs
+│   │   ├── controllers/  # Route handlers (auth, events, transactions, otp)
+│   │   ├── middleware/   # Token auth, rate limiters, validation
+│   │   ├── routes/       # Express route definitions
+│   │   ├── services/     # Business logic & Prisma queries
+│   │   ├── sockets/      # Real-time event emitters
+│   │   └── utils/        # JWT & general helper scripts
 ├── frontend/
 │   ├── index.html
 │   ├── package.json
 │   ├── vite.config.js
 │   ├── src/
-│   │   ├── components/
-│   │   ├── context/
-│   │   ├── pages/
-│   │   ├── api/
-│   │   ├── lib/
+│   │   ├── components/   # Visual cards, modals, left panel panels
+│   │   ├── context/      # AuthState & ToastContext providers
+│   │   ├── pages/        # Landing, Dashboard, Profile, Auth pages
+│   │   ├── api/          # Token caching & API utilities
 │   │   └── App.jsx
 └── README.md
 ```
@@ -89,91 +84,68 @@ fundo/
 
 ## ⚙️ Setup
 
-### Backend
+### Prerequisite Services
+Ensure **PostgreSQL** and **Redis** servers are running locally on your system.
 
-```bash
-cd backend
-npm install
-```
+### 1. Backend Setup
+1. Navigate into the backend directory and install dependencies:
+   ```bash
+   cd backend
+   npm install
+   ```
+2. Create a `backend/.env` file with the following variables:
+   ```env
+   PORT=8000
+   DATABASE_URL="postgresql://username:password@localhost:5432/fundo"
+   ACCESS_TOKEN_SECRET="your_access_token_secret"
+   REFRESH_TOKEN_SECRET="your_refresh_token_secret"
+   SALT=10
+   
+   # Redis config
+   REDIS_HOST=localhost
+   REDIS_PORT=6379
+   REDIS_URL=redis://localhost:6379
 
-Create `backend/.env` with:
+   # SMTP Mail Server for OTPs
+   GMAIL_USER="your_email@gmail.com"
+   GMAIL_PASS="your_app_password"
 
-```env
-PORT=8000
-DATABASE_URL=postgresql://username:password@localhost:5432/fundo
-ACCESS_TOKEN_SECRET=your_access_secret
-REFRESH_TOKEN_SECRET=your_refresh_secret
-SALT=10
-REDIS_URL=redis://localhost:6379
-RAZORPAY_KEY_ID=your_razorpay_key_id
-RAZORPAY_KEY_SECRET=your_razorpay_secret
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_cloudinary_api_key
-CLOUDINARY_API_SECRET=your_cloudinary_api_secret
-```
+   # Cloudinary storage
+   CLOUDINARY_CLOUD_NAME="your_cloud_name"
+   CLOUDINARY_API_KEY="your_cloudinary_api_key"
+   CLOUDINARY_API_SECRET="your_cloudinary_api_secret"
 
-Run migrations and generate Prisma client:
+   # Razorpay API Keys
+   RAZORPAY_KEY_ID="your_razorpay_key_id"
+   RAZORPAY_KEY_SECRET="your_razorpay_key_secret"
 
-```bash
-npx prisma migrate dev --name init
-npx prisma generate
-```
+   # Frontend Callback URLs
+   FRONTEND_URL=http://localhost:5173
+   GOOGLE_CLIENT_ID="your_google_client_id"
+   GOOGLE_CLIENT_SECRET="your_google_client_secret"
+   GOOGLE_CALLBACK_URL=http://localhost:8000/api/auth/google/callback
+   ```
+3. Generate the Prisma database client:
+   ```bash
+   npx prisma generate
+   npx prisma migrate dev --name init
+   ```
+4. Start the backend development server:
+   ```bash
+   npm run dev
+   ```
 
-Start the backend:
-
-```bash
-npm run dev
-```
-
-### Frontend
-
-```bash
-cd frontend
-npm install
-```
-
-Create `frontend/.env` with:
-
-```env
-VITE_BACKEND_URL=http://localhost:8000
-```
-
-Start the frontend app:
-
-```bash
-npm run dev
-```
-
----
-
-## 📌 Scripts
-
-### Backend (`backend/package.json`)
-
-- `npm run dev` — run server with nodemon
-- `npm test` — placeholder
-
-### Frontend (`frontend/package.json`)
-
-- `npm run dev` — run Vite dev server
-- `npm run build` — production build
-- `npm run preview` — preview production build
-- `npm run lint` — lint code
-
----
-
-## 💡 Notes
-
-- The backend exposes `api/auth`, `api/events`, and `api/transactions` routes.
-- The frontend includes auth, event browsing, dashboard, and private invite flows.
-- Razorpay order and verification logic is implemented in backend services.
-- OTP verification has UI support; backend OTP controllers exist for future route wiring.
-
----
-
-## 📬 Next Steps
-
-- deploy backend and frontend to a cloud environment
-- add real-time Socket.io updates for payments
-- enable OTP APIs end-to-end
-- add end-to-end tests and CI configuration
+### 2. Frontend Setup
+1. Navigate to the frontend directory:
+   ```bash
+   cd ../frontend
+   npm install
+   ```
+2. Create a `frontend/.env` file:
+   ```env
+   VITE_BACKEND_URL=http://localhost:8000
+   ```
+3. Start the Vite development server:
+   ```bash
+   npm run dev
+   ```

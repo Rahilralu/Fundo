@@ -10,6 +10,7 @@ export async function getProfileServices(userId) {
             email: true,
             role: true,
             is_verified: true,
+            avatar: true,
             created_at: true,
         },
     });
@@ -33,14 +34,52 @@ export async function updateProfileServices(userId,data){
             email: true,
             role: true,
             is_verified: true,
+            avatar: true,
             created_at: true,
         },
     });
 
 }
 
+export async function updateAvatarService(userId, avatarUrl) {
+  return await prisma.users.update({
+    where: { id: userId },
+    data: { avatar: avatarUrl },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      is_verified: true,
+      avatar: true,
+      created_at: true
+    }
+  })
+}
+
 export async function deleteAccountService(userId) {
     return await prisma.users.delete({
         where : {id : userId},
     })
+}
+
+export async function  resetPasswordService(userId,newPassword){
+    const updateData = {};
+
+    if(newPassword){
+        updateData.password = await bcrypt.hash(newPassword,Number(process.env.SALT));
+    }
+
+    return await prisma.users.update({
+        where: {id : userId},
+        data : updateData,
+        select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            is_verified: true,
+            created_at: true,
+        },
+    });
 }

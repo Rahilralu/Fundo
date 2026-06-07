@@ -72,11 +72,13 @@ export const loginUser = async ({ email,password }) => {
             }
         })
         const safeUser = {
-            id:         user.id,
-            name:       user.name,
-            email:      user.email,
-            role:       user.role,
-            created_at: user.created_at
+            id:          user.id,
+            name:        user.name,
+            email:       user.email,
+            role:        user.role,
+            is_verified: user.is_verified,
+            avatar:      user.avatar,
+            created_at:  user.created_at
         }
 
         return { accessToken, refreshToken, user: safeUser }
@@ -162,6 +164,7 @@ export const getMe = async (userId) => {
             email:       true,
             role:        true,
             is_verified: true,
+            avatar:      true,
             created_at:  true
             }
         })
@@ -176,4 +179,28 @@ export const getMe = async (userId) => {
         console.log(err); 
         throw err.status ? err : { status: 500, message: "Server error" }
     }
+}
+
+export const loginWithGoogle = async (user) => {
+  try {
+    const accessToken = generateAccessToken(user.id, user.email, user.role)
+    const refreshToken = generateRefreshToken(user.id, user.email, user.role)
+
+    await prisma.refresh_tokens.deleteMany({
+      where: { user_id: user.id }
+    })
+
+    await prisma.refresh_tokens.create({
+      data: {
+        user_id: user.id,
+        token_hash: hashToken(refreshToken),
+        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+      }
+    })
+
+    return { accessToken, refreshToken }
+  } catch (err) {
+    console.log(err)
+    throw err.status ? err : { status: 500, message: "Server error" }
+  }
 }

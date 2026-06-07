@@ -4,6 +4,7 @@ import {
   refreshUserToken,
   logoutUser,
   getMe
+  ,loginWithGoogle
 } from "../services/auth.service.js"
 import redis from '../config/redis.js'
 import prisma from '../config/psql.js'
@@ -132,5 +133,26 @@ export const me = async (req, res) => {
       success: false,
       message: err.message
     })
+  }
+}
+
+
+export const googleCallback = async (req, res) => {
+  try {
+    const { accessToken, refreshToken } = await loginWithGoogle(req.user)
+
+    res.cookie("refresh_token", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    })
+
+    // redirect to frontend with access token in URL
+    res.redirect(
+      `${process.env.FRONTEND_URL}/auth/callback?access_token=${accessToken}`
+    )
+  } catch (err) {
+    res.redirect(`${process.env.FRONTEND_URL}/login?error=oauth_failed`)
   }
 }
