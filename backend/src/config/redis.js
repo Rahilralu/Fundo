@@ -1,7 +1,8 @@
 import IORedis from 'ioredis'
 
 const client = new IORedis(process.env.REDIS_URL, {
-  maxRetriesPerRequest: null
+  maxRetriesPerRequest: null,
+  tls: {}
 })
 
 client.on('error', (err) => {
