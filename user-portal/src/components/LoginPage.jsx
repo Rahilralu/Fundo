@@ -54,7 +54,7 @@ export default function LoginPage({ onLogin }) {
             
             <div className="flex flex-col items-center gap-4 z-10">
               <motion.div 
-                className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#8155ff] to-[#6035f5] flex items-center justify-center shadow-lg shadow-brand-500/30"
+                className="w-16 h-16 rounded-2xl bg-black border border-white/10 flex items-center justify-center shadow-lg shadow-white/10"
                 animate={{ scale: [1, 1.05, 1] }}
                 transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
               >

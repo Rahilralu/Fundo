@@ -11,8 +11,8 @@ export default function LeftPanel() {
 
         {/* Logo */}
         <Link to="/" className="flex items-center gap-3 mb-12 pointer-events-auto hover:opacity-80 transition-opacity w-fit">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center shadow-lg shadow-purple-500/20">
-            <span className="font-bold text-xl text-white">F</span>
+          <div className="w-10 h-10 rounded-xl bg-black border border-white/10 flex items-center justify-center shadow-lg shadow-white/10">
+            <img src="/logo.png" alt="Fundo Logo" className="w-6 h-6 object-contain" />
           </div>
           <span className="font-bold text-2xl tracking-tight text-white">Fundo</span>
         </Link>

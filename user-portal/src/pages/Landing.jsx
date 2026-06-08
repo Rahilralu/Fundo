@@ -43,7 +43,7 @@ export default function Landing() {
       >
         <div className="flex flex-col items-center gap-4">
           {/* Pulsing Logo badge */}
-          <div className="w-20 h-20 rounded-2xl bg-white/[0.03] border border-white/[0.08] flex items-center justify-center shadow-2xl shadow-purple-500/10 animate-pulse">
+          <div className="w-20 h-20 rounded-2xl bg-black border border-white/10 flex items-center justify-center shadow-2xl shadow-white/10 animate-pulse">
             <img src="/logo.png" alt="Fundo Logo" className="w-14 h-14 object-contain" />
           </div>
           {/* Loading status */}

@@ -49,11 +49,13 @@ export default function Navbar() {
       <div className="max-w-[1400px] mx-auto flex items-center justify-between">
         {/* Logo */}
         <Link className="flex items-center gap-2.5" to="/">
-          <img 
-            src="/logo.png" 
-            alt="Fundo Logo" 
-            className="w-10 h-10 object-contain" 
-          />
+          <div className="w-10 h-10 rounded-2xl bg-black border border-white/10 flex items-center justify-center shadow-lg shadow-white/10">
+            <img 
+              src="/logo.png" 
+              alt="Fundo Logo" 
+              className="w-8 h-8 object-contain" 
+            />
+          </div>
           <span className="font-extrabold text-xl tracking-tight text-white hidden sm:block bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-purple-200">
             Fundo
           </span>

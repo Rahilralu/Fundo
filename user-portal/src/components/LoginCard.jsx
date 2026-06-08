@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card';
@@ -13,31 +13,38 @@ export default function LoginCard({ onLogin, onSwitchToSignUp }) {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [shake, setShake] = useState(false);
-  const [emailNotFoundShake, setEmailNotFoundShake] = useState(false);
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
   const { addToast } = useToast();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setEmailError('');
+    setPasswordError('');
+
     if (!email || !password) {
       setShake(true);
       setTimeout(() => setShake(false), 500);
       addToast('Please fill in all fields', 'error');
       return;
     }
+
     try {
       const error = await onLogin(email, password);
       if (error) {
         const errorLower = error.toLowerCase();
-        
-        // Check if email doesn't exist
-        if (errorLower.includes('not found') || errorLower.includes('no user') || errorLower.includes('email') && errorLower.includes('not') || errorLower.includes('invalid')) {
-          setEmailNotFoundShake(true);
-          setTimeout(() => setEmailNotFoundShake(false), 500);
-          addToast('Email not found. Please create an account to continue.', 'error');
-          // Switch to signup after a short delay
-          setTimeout(() => {
-            onSwitchToSignUp();
-          }, 1500);
+        if (errorLower.includes('invalid email or password') || errorLower.includes('not found') || errorLower.includes('no user')) {
+          setEmailError('No account found with this email. Redirecting to sign up...');
+          addToast('No account found. Please create one.', 'error');
+          setTimeout(() => onSwitchToSignUp(), 2000);
+        } else if (errorLower.includes('incorrect password') || errorLower.includes('wrong password')) {
+          setPasswordError('Incorrect password. Please try again.');
+          setShake(true);
+          setTimeout(() => setShake(false), 500);
+        } else if (errorLower.includes('google')) {
+          setEmailError('This account was created with Google. Use the button below.');
+          setShake(true);
+          setTimeout(() => setShake(false), 500);
         } else {
           setShake(true);
           setTimeout(() => setShake(false), 500);
@@ -62,10 +69,12 @@ export default function LoginCard({ onLogin, onSwitchToSignUp }) {
         <CardHeader className="space-y-3 pb-3 pt-5">
           <div className="flex flex-col items-center relative">
             <Link to="/" className="flex flex-col items-center gap-1 hover:opacity-80 transition-opacity cursor-pointer">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#8155ff] to-[#6035f5] flex items-center justify-center shadow-lg shadow-brand-500/30">
+              <div className="w-10 h-10 rounded-xl bg-black border border-white/10 flex items-center justify-center shadow-lg shadow-white/10">
                 <img src="/logo.png" alt="Fundo Logo" className="w-8 h-8 object-contain" />
+              </div>
+              <span className="font-heading font-bold text-lg tracking-tight text-white">Fundo</span>
+            </Link>
           </div>
-
           <div className="space-y-1 pt-1">
             <CardTitle className="text-xl font-heading text-white font-medium">Welcome Back</CardTitle>
             <CardDescription className="text-white/60 text-[11px]">
@@ -73,6 +82,7 @@ export default function LoginCard({ onLogin, onSwitchToSignUp }) {
             </CardDescription>
           </div>
         </CardHeader>
+
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-3">
             <div className="space-y-1.5 relative group">
@@ -87,9 +97,15 @@ export default function LoginCard({ onLogin, onSwitchToSignUp }) {
                   placeholder="Enter your email"
                   className="pl-10 h-11 rounded-xl bg-black/20 border-white/5 text-white placeholder:text-white/30 focus:border-brand-400 focus:bg-black/40 transition-all text-xs"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => { setEmail(e.target.value); setEmailError(''); }}
                 />
               </div>
+              {emailError && (
+                <p className="text-[10px] mt-1 pl-1 flex items-center gap-1.5 font-medium leading-normal text-amber-400/90">
+                  <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-amber-400 animate-pulse" />
+                  {emailError}
+                </p>
+              )}
             </div>
 
             <div className="space-y-1.5 relative group">
@@ -104,7 +120,7 @@ export default function LoginCard({ onLogin, onSwitchToSignUp }) {
                   placeholder="Enter your password"
                   className="pl-10 pr-10 h-11 rounded-xl bg-black/20 border-white/5 text-white placeholder:text-white/30 focus:border-brand-400 focus:bg-black/40 transition-all text-xs"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => { setPassword(e.target.value); setPasswordError(''); }}
                 />
                 <button
                   type="button"
@@ -114,6 +130,12 @@ export default function LoginCard({ onLogin, onSwitchToSignUp }) {
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
+              {passwordError && (
+                <p className="text-[10px] mt-1 pl-1 flex items-center gap-1.5 font-medium leading-normal text-red-400/90">
+                  <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-red-400 animate-pulse" />
+                  {passwordError}
+                </p>
+              )}
             </div>
 
             <div className="flex items-center justify-between pt-1">
@@ -136,7 +158,6 @@ export default function LoginCard({ onLogin, onSwitchToSignUp }) {
               <span className="text-[10px] uppercase text-white/50 font-medium tracking-wider">or continue with</span>
               <div className="flex-1 border-t border-white/10"></div>
             </div>
-
             <div className="mt-3">
               <Button type="button" onClick={() => window.location.href = `${import.meta.env.VITE_BACKEND_URL}/api/auth/google`} variant="outline" className="w-full flex items-center justify-center gap-2 bg-black/20 border border-white/5 hover:bg-black/40 rounded-xl h-10 hover:border-brand-500/30 hover:text-white transition-all duration-300 active:scale-95 text-white/80 font-medium text-xs">
                 <svg viewBox="0 0 24 24" width="14" height="14" xmlns="http://www.w3.org/2000/svg">
