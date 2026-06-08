@@ -43,6 +43,7 @@ app.use(express.json({ limit: '10kb'}));
 app.use(cookieParser());
 app.use(passport.initialize()) 
 app.use(helmet());
+app.set('trust proxy', 1)  
 app.use(globalLimiter)
 
 app.use('/api', routes);
