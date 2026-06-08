@@ -45,7 +45,7 @@ enum user_role {
 
 model Event {
   id          String   @id @default(cuid())
-  title       String @unique
+  title       String 
   description String
   date        DateTime
   location    String
