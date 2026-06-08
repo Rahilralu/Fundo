@@ -58,12 +58,7 @@ export default function LoginPage({ onLogin }) {
                 animate={{ scale: [1, 1.05, 1] }}
                 transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
               >
-                <span className="font-heading font-bold text-3xl text-white">F</span>
-              </motion.div>
-              
-              <div className="flex flex-col items-center gap-1.5 text-center">
-                <h2 className="text-base font-heading font-medium tracking-tight text-white">Initializing Experience</h2>
-                <p className="text-white/40 text-[10px] font-sans">Configuring 3D environment...</p>
+              <img src="/logo.png" alt="Fundo Logo" className="w-12 h-12 object-contain" />
               </div>
               
               <div className="w-32 h-[3px] bg-white/5 rounded-full overflow-hidden relative">
