@@ -1,26 +1,20 @@
-import { Resend } from 'resend';
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+import { transporter } from '../config/mailer.js';
 
 export async function sendEmail({ to, subject, text, html }) {
   try {
-    const { data, error } = await resend.emails.send({
-      from: 'Fundo Team <onboarding@resend.dev>',
+    const transport =  transporter()
+    const info = await transport.sendMail({
+      from: `"Fundo Team" <${process.env.GMAIL_USER}>`,
       to,
       subject,
       text,
       html,
     });
-    
-    if (error) {
-      console.error("Resend error:", error);
-      throw error;
-    }
-    
-    console.log("Message sent:", data?.id);
-    return data;
+    console.log("Message sent: %s", info.messageId);
+    return info;
   } catch (err) {
     console.error("Error while sending mail:", err);
     throw err;
   }
 }
+
