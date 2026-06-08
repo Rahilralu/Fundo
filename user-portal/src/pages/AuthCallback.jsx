@@ -18,9 +18,7 @@ export default function AuthCallback() {
       const params = new URLSearchParams(window.location.search);
       const accessToken = params.get('access_token');
 
-      if (accessToken) {
-        localStorage.setItem('access_token', accessToken);
-        
+      if (accessToken) {        
         // Log in the user inside React context state
         const user = await loginWithToken(accessToken);
         if (user) {
