@@ -52,6 +52,10 @@ export const loginUser = async ({ email,password }) => {
             throw { status: 401, message: "Invalid email or password" }
         }
 
+        if (!user.password) {
+          return { success: false, message: 'This account uses Google login. Please sign in with Google.' };
+        }
+
         const match = await bcrypt.compare(password,user.password)
         if(!match){
             throw { status: 401, message: "Invalid email or password" }

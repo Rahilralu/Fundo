@@ -1,10 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 
 export default function Footer() {
-  const [email, setEmail] = useState('');
-
   const footerLinks = {
     Product: [
       { name: 'Features', path: '/features' },
@@ -74,28 +72,11 @@ export default function Footer() {
             </div>
           ))}
 
-          {/* Newsletter */}
-          <div>
-            <h4 className="text-[13px] font-semibold text-white/70 mb-4 tracking-wide">Newsletter</h4>
-            <p className="text-[12px] text-white/30 mb-4 leading-relaxed">Subscribe to get updates on new events and features.</p>
-            <div className="flex items-center bg-white/[0.04] border border-white/[0.08] rounded-full overflow-hidden pl-4 pr-1 py-1 focus-within:border-[#8155ff]/40 transition-colors">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
-                className="bg-transparent text-[13px] text-white placeholder-white/25 outline-none flex-1 py-1"
-              />
-              <button className="w-8 h-8 rounded-full bg-[#8155ff] flex items-center justify-center shrink-0 hover:bg-[#7248ed] transition-colors">
-                <ArrowRight size={14} className="text-white" />
-              </button>
-            </div>
-          </div>
         </div>
 
         {/* Bottom bar */}
         <div className="border-t border-white/[0.05] mt-12 pt-6 text-center">
-          <p className="text-[12px] text-white/25 font-medium">© 2025 Fundo. All rights reserved.</p>
+          <p className="text-[12px] text-white/25 font-medium">© 2026 Fundo. All rights reserved.</p>
         </div>
       </div>
     </footer>

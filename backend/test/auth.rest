@@ -1,4 +1,4 @@
-@baseUrl = http://localhost:8000
+@baseUrl = https://fundo-w77b.onrender.com
 
 ###Register User
 
@@ -91,4 +91,13 @@ Content-Type: application/json
   "name": "Test User",
   "email": "tested.3.3.54@gmail.com",
   "password": "Test@1234"
+}
+
+###
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "rahilnazar1234@gmail.com",
+  "password": "Rayan@5452"
 }
