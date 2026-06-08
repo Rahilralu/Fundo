@@ -3,6 +3,8 @@
 **Fundo is a college event payment platform for organisers and students.**
 It helps organisers create events, collect online payments via Razorpay, and track every transaction in one place.
 
+**Live Demo:** https://fundo-doe.pages.dev/
+
 ---
 
 ## 🚀 What Fundo Solves
@@ -67,7 +69,7 @@ fundo/
 │   │   ├── services/     # Business logic & Prisma queries
 │   │   ├── sockets/      # Real-time event emitters
 │   │   └── utils/        # JWT & general helper scripts
-├── frontend/
+├── user-portal/
 │   ├── index.html
 │   ├── package.json
 │   ├── vite.config.js
@@ -138,10 +140,10 @@ Ensure **PostgreSQL** and **Redis** servers are running locally on your system.
 ### 2. Frontend Setup
 1. Navigate to the frontend directory:
    ```bash
-   cd ../frontend
+   cd ../user-portal
    npm install
    ```
-2. Create a `frontend/.env` file:
+2. Create a `user-portal/.env` file:
    ```env
    VITE_BACKEND_URL=http://localhost:8000
    ```

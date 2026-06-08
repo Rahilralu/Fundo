@@ -58,7 +58,7 @@ export const loginUser = async ({ email,password }) => {
 
         const match = await bcrypt.compare(password,user.password)
         if(!match){
-            throw { status: 401, message: "Invalid email or password" }
+            throw { status: 401, message: "Incorrect password" }
         }
 
         const accessToken  = generateAccessToken(user.id, user.email, user.role)

@@ -59,7 +59,7 @@ export default function LoginPage({ onLogin }) {
                 transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
               >
               <img src="/logo.png" alt="Fundo Logo" className="w-12 h-12 object-contain" />
-              </div>
+              </motion.div>
               
               <div className="w-32 h-[3px] bg-white/5 rounded-full overflow-hidden relative">
                 <motion.div 
