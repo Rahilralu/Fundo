@@ -2,6 +2,8 @@
 
 **A platform where organisers create events and students pay online — and everything is tracked automatically.**
 
+**Live Demo:** https://fundo-doe.pages.dev/
+
 ---
 
 ## 🛑 The Problem
