@@ -52,6 +52,10 @@ app.use((err, req, res, next) => {
     res.status(err.status || 500).json({ error: err.message || 'Internal server error' });
 });
 
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 const PORT = process.env.PORT || 5000;
 httpServer.listen(PORT,async () => {
   cleanPending();
