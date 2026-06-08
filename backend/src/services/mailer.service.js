@@ -1,20 +1,19 @@
-import { transporter } from '../config/mailer.js';
+import sgMail from '@sendgrid/mail';
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 export async function sendEmail({ to, subject, text, html }) {
   try {
-    const transport =  transporter()
-    const info = await transport.sendMail({
-      from: `"Fundo Team" <${process.env.GMAIL_USER}>`,
+    await sgMail.send({
+      from: 'nazarrahil0000@gmail.com',
       to,
       subject,
       text,
       html,
     });
-    console.log("Message sent: %s", info.messageId);
-    return info;
+    console.log('Email sent successfully');
   } catch (err) {
-    console.error("Error while sending mail:", err);
+    console.error('Error while sending mail:', err.response?.body || err);
     throw err;
   }
 }
-
