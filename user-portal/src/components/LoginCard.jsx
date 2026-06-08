@@ -13,6 +13,7 @@ export default function LoginCard({ onLogin, onSwitchToSignUp }) {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [shake, setShake] = useState(false);
+  const [emailNotFoundShake, setEmailNotFoundShake] = useState(false);
   const { addToast } = useToast();
 
   const handleSubmit = async (e) => {
@@ -26,9 +27,22 @@ export default function LoginCard({ onLogin, onSwitchToSignUp }) {
     try {
       const error = await onLogin(email, password);
       if (error) {
-        setShake(true);
-        setTimeout(() => setShake(false), 500);
-        addToast(error, 'error');
+        const errorLower = error.toLowerCase();
+        
+        // Check if email doesn't exist
+        if (errorLower.includes('not found') || errorLower.includes('no user') || errorLower.includes('email') && errorLower.includes('not') || errorLower.includes('invalid')) {
+          setEmailNotFoundShake(true);
+          setTimeout(() => setEmailNotFoundShake(false), 500);
+          addToast('Email not found. Please create an account to continue.', 'error');
+          // Switch to signup after a short delay
+          setTimeout(() => {
+            onSwitchToSignUp();
+          }, 1500);
+        } else {
+          setShake(true);
+          setTimeout(() => setShake(false), 500);
+          addToast(error, 'error');
+        }
       } else {
         addToast('Logged in successfully!', 'success');
       }

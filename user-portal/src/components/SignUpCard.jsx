@@ -7,6 +7,7 @@ import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Checkbox } from './ui/checkbox';
 import { z } from 'zod';
+import { useToast } from '../context/ToastContext';
 
 const passwordSchema = z.string()
   .min(8, { message: "Password must be at least 8 characters long" })
@@ -25,6 +26,8 @@ export default function SignUpCard({ onRegister, onSwitchToLogin }) {
   const [passwordErrors, setPasswordErrors] = useState([]);
   const [showPassword, setShowPassword] = useState(false);
   const [shake, setShake] = useState(false);
+  const [redirectCountdown, setRedirectCountdown] = useState(0);
+  const { addToast } = useToast();
 
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
@@ -47,10 +50,12 @@ export default function SignUpCard({ onRegister, onSwitchToLogin }) {
 
 const handleSubmit = async (e) => {
   e.preventDefault();
+  if (redirectCountdown > 0) return; // Prevent submission during redirect countdown
   setEmailError('');
   if (!email || !password || !name) {
     setShake(true);
     setTimeout(() => setShake(false), 500);
+    addToast('Please fill in all fields', 'error');
     return;
   }
   const result = passwordSchema.safeParse(password);
@@ -62,12 +67,31 @@ const handleSubmit = async (e) => {
   }
   const regError = await onRegister(name, email, password);
   if (regError) {
-    setEmailError(regError);
-    if (regError.toLowerCase().includes('email') || regError.toLowerCase().includes('already registered')) {
-      setTimeout(() => {
-        onSwitchToLogin();
-      }, 5000);
+    const errorLower = regError.toLowerCase();
+    
+    // Check if email already registered
+    if (errorLower.includes('email') && (errorLower.includes('already') || errorLower.includes('exist') || errorLower.includes('registered'))) {
+      setEmailError('Email already registered. Redirecting to login in 5 seconds...');
+      addToast('Email already registered. Redirecting to login...', 'info');
+      
+      // Start countdown
+      let count = 5;
+      setRedirectCountdown(count);
+      const countdownInterval = setInterval(() => {
+        count--;
+        setRedirectCountdown(count);
+        if (count <= 0) {
+          clearInterval(countdownInterval);
+          onSwitchToLogin();
+        }
+      }, 1000);
+    } else {
+      setEmailError(regError);
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
     }
+  } else {
+    addToast('Registration successful!', 'success');
   }
 };
   
@@ -131,8 +155,16 @@ const handleSubmit = async (e) => {
                 />
               </div>
               {emailError && (
-                <p className="text-[10px] text-red-400/90 mt-1.5 pl-1 flex items-center gap-1.5 font-medium leading-normal">
-                  <span className="w-1.5 h-1.5 bg-red-400 rounded-full shrink-0 animate-pulse" />
+                <p className={`text-[10px] mt-1.5 pl-1 flex items-center gap-1.5 font-medium leading-normal ${
+                  emailError.includes('Redirecting') 
+                    ? 'text-amber-400/90' 
+                    : 'text-red-400/90'
+                }`}>
+                  <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                    emailError.includes('Redirecting')
+                      ? 'bg-amber-400 animate-pulse'
+                      : 'bg-red-400 animate-pulse'
+                  }`} />
                   {emailError}
                 </p>
               )}
@@ -161,9 +193,10 @@ const handleSubmit = async (e) => {
                 </button>
               </div>
               {passwordErrors.length > 0 && (
-                <div className="mt-1.5 space-y-1 pl-1">
+                <div className="mt-1.5 space-y-1 pl-1 bg-red-500/10 p-2 rounded-lg border border-red-500/20">
+                  <p className="text-[10px] text-red-400/90 font-semibold uppercase tracking-wide mb-1">Password Requirements:</p>
                   {passwordErrors.map((msg, index) => (
-                    <p key={index} className="text-[10px] text-red-400/90 flex items-center gap-1.5 font-medium leading-none">
+                    <p key={index} className="text-[10px] text-red-400/90 flex items-center gap-1.5 font-medium leading-normal">
                       <span className="w-1 h-1 bg-red-400 rounded-full shrink-0" />
                       {msg}
                     </p>
@@ -179,8 +212,12 @@ const handleSubmit = async (e) => {
               </label>
             </div>
 
-            <Button type="submit" className="w-full h-11 rounded-xl bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-500 font-semibold text-sm mt-1">
-              Sign Up
+            <Button 
+              type="submit" 
+              disabled={redirectCountdown > 0}
+              className="w-full h-11 rounded-xl bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-500 font-semibold text-sm mt-1 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {redirectCountdown > 0 ? `Redirecting in ${redirectCountdown}s` : 'Sign Up'}
             </Button>
           </form>
 
