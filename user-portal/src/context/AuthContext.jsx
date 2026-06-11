@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { setToken, clearToken } from '../api/tokens.js';
+import { setToken, clearToken, setRefreshFn } from '../api/tokens.js';
 
 const AuthContext = createContext();
 
@@ -11,31 +11,37 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Restore session on mount
+  const refreshAccessToken = async () => {
+    if (!refreshPromise) {
+      refreshPromise = fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/refresh`, {
+        method: 'POST',
+        credentials: 'include',
+      }).then(async (res) => {
+        refreshPromise = null;
+        if (res.ok) {
+          const data = await res.json();
+          setToken(data.access_token);
+          return data.access_token;
+        }
+        throw new Error('Refresh failed');
+      }).catch((err) => {
+        refreshPromise = null;
+        throw err;
+      });
+    }
+    return refreshPromise;
+  };
+
+  useEffect(() => {
+    setRefreshFn(refreshAccessToken);
+  }, []);
+
   useEffect(() => {
     const restoreSession = async () => {
-      if (!refreshPromise) {
-        refreshPromise = fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/refresh`, {
-          method: 'POST',
-          credentials: 'include',
-        }).then(async (res) => {
-          if (res.ok) {
-            return res.json();
-          }
-          throw new Error('Session refresh failed');
-        }).catch((err) => {
-          refreshPromise = null; // reset on error so retries can occur later if needed
-          throw err;
-        });
-      }
-
       try {
-        const data = await refreshPromise;
-        setToken(data.access_token);  // ✅ stores in memory
-
-        // ✅ fetch user with the restored token
+        const token = await refreshAccessToken();
         const meRes = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/me`, {
-          headers: { Authorization: `Bearer ${data.access_token}` },
+          headers: { Authorization: `Bearer ${token}` },
           credentials: 'include',
         });
         const meData = await meRes.json();
@@ -43,7 +49,7 @@ export const AuthProvider = ({ children }) => {
       } catch (err) {
         console.error('Session restore failed:', err);
       } finally {
-        setLoading(false);  // ✅ only renders children after this
+        setLoading(false);
       }
     };
 
@@ -61,15 +67,19 @@ export const AuthProvider = ({ children }) => {
     const data = await res.json();
 
     if (data.success) {
-      refreshPromise = null; // reset lock on login
+      refreshPromise = null;
       setToken(data.access_token);
-      setUser(data.user); // backend should return user object
+      setUser(data.user);
       navigate(redirectTo || '/events');
-      return null; // no error
+      return null;
     }
 
-    // Redirect to OTP page if account is not verified
-    if (res.status === 403 || data.message?.toLowerCase().includes('not verified') || data.message?.toLowerCase().includes('otp') || data.error?.toLowerCase().includes('not verified')) {
+    if (
+      res.status === 403 ||
+      data.message?.toLowerCase().includes('not verified') ||
+      data.message?.toLowerCase().includes('otp') ||
+      data.error?.toLowerCase().includes('not verified')
+    ) {
       try {
         await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/send-otp`, {
           method: 'POST',
@@ -83,7 +93,7 @@ export const AuthProvider = ({ children }) => {
       return 'Email not verified. Redirecting to OTP verification...';
     }
 
-    return data.message || data.error || 'Login failed'; // return error string
+    return data.message || data.error || 'Login failed';
   };
 
   const logout = async () => {
@@ -95,7 +105,7 @@ export const AuthProvider = ({ children }) => {
     } catch (err) {
       console.error('Logout failed:', err);
     } finally {
-      refreshPromise = null; // reset lock on logout
+      refreshPromise = null;
       clearToken();
       setUser(null);
       navigate('/login');
@@ -112,7 +122,6 @@ export const AuthProvider = ({ children }) => {
     const data = await res.json();
 
     if (res.ok && data.success) {
-      // If registration succeeds (meaning OTP is already verified), auto-login the user!
       const loginErr = await login(email, password, undefined, redirectTo);
       if (!loginErr) {
         navigate(redirectTo || '/events');
@@ -120,8 +129,11 @@ export const AuthProvider = ({ children }) => {
       }
     }
 
-    // If unverified, trigger OTP send and redirect
-    if (res.status === 403 || data.error?.toLowerCase().includes('not verified') || data.message?.toLowerCase().includes('not verified')) {
+    if (
+      res.status === 403 ||
+      data.error?.toLowerCase().includes('not verified') ||
+      data.message?.toLowerCase().includes('not verified')
+    ) {
       try {
         await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/send-otp`, {
           method: 'POST',
@@ -137,6 +149,7 @@ export const AuthProvider = ({ children }) => {
 
     return data.message || data.error || 'Registration failed';
   };
+
   const loginWithToken = async (accessToken) => {
     setToken(accessToken);
     try {
@@ -156,7 +169,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, login, logout, register, loginWithToken, loading }}>
+    <AuthContext.Provider value={{ user, setUser, login, logout, register, loginWithToken, refreshAccessToken, loading }}>
       {!loading && children}
     </AuthContext.Provider>
   );
