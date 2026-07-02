@@ -1,8 +1,18 @@
 import IORedis from 'ioredis'
 
-const client = new IORedis(process.env.REDIS_URL, {
+const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379'
+const isSecure = redisUrl.startsWith('rediss://')
+
+const client = new IORedis(redisUrl, {
   maxRetriesPerRequest: null,
-  tls: {}
+  ...(isSecure ? { tls: {} } : {})
+})
+
+console.log('REDIS_URL:', redisUrl)
+console.log('TLS enabled:', isSecure)
+
+client.on('connect', () => {
+  console.log('✅ Redis connected')
 })
 
 client.on('error', (err) => {
@@ -10,7 +20,7 @@ client.on('error', (err) => {
 })
 
 export async function redisConnection() {
-  console.log('✅ Redis connected')
+  console.log('✅ Redis connection module loaded')
 }
 
 export default client

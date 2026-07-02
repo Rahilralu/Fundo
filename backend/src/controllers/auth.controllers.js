@@ -44,8 +44,9 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
+    const { requiredRole } = req.body;
     const { accessToken, refreshToken, user } =
-      await loginUser(req.body)
+      await loginUser({ ...req.body, requiredRole })
 
     // Set refresh token in cookie
     res.cookie("refresh_token", refreshToken, {
@@ -148,11 +149,37 @@ export const googleCallback = async (req, res) => {
     maxAge: 7 * 24 * 60 * 60 * 1000
   })
 
-    // redirect to frontend with access token in URL
-    res.redirect(
-      `${process.env.FRONTEND_URL}/auth/callback?access_token=${accessToken}`
-    )
+    // Set access token as a short-lived httpOnly cookie (not in URL)
+    res.cookie("oauth_access_token", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      maxAge: 60 * 1000, // 1 minute — just long enough for the redirect
+      path: "/"
+    })
+
+    // Redirect without token in URL
+    res.redirect(`${process.env.FRONTEND_URL}/auth/callback`)
   } catch (err) {
     res.redirect(`${process.env.FRONTEND_URL}/login?error=oauth_failed`)
   }
+}
+
+// Exchange the short-lived oauth cookie for the access token (JSON response)
+export const exchangeOAuthToken = (req, res) => {
+  const token = req.cookies?.oauth_access_token
+
+  // Clear the cookie immediately after reading
+  res.clearCookie("oauth_access_token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    path: "/"
+  })
+
+  if (!token) {
+    return res.status(401).json({ success: false, message: "No OAuth token found" })
+  }
+
+  return res.json({ success: true, access_token: token })
 }

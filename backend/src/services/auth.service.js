@@ -41,7 +41,7 @@ export const registerUser = async ({ name , email , password , role }) => {
     }
 }
 
-export const loginUser = async ({ email,password }) => {
+export const loginUser = async ({ email, password, requiredRole }) => {
     try{
         const user = await prisma.users.findUnique({
             where:{email}
@@ -53,12 +53,23 @@ export const loginUser = async ({ email,password }) => {
         }
 
         if (!user.password) {
-          return { success: false, message: 'This account uses Google login. Please sign in with Google.' };
+          throw { status: 400, message: 'This account uses Google login. Please sign in with Google.' }
         }
 
         const match = await bcrypt.compare(password,user.password)
         if(!match){
             throw { status: 401, message: "Incorrect password" }
+        }
+
+        // Role-based portal access enforcement
+        // Treat null/undefined role as 'student' (default)
+        const effectiveRole = user.role || 'student';
+        if (requiredRole && effectiveRole !== requiredRole) {
+            if (requiredRole === 'organiser') {
+                throw { status: 403, message: "Access denied. This account is not registered as an organiser. Please use the student portal." }
+            } else {
+                throw { status: 403, message: "Access denied. This account is not registered as a student. Please use the organiser portal." }
+            }
         }
 
         const accessToken  = generateAccessToken(user.id, user.email, user.role)

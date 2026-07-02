@@ -15,20 +15,29 @@ export default function AuthCallback() {
     processedRef.current = true;
 
     const handleCallback = async () => {
-      const params = new URLSearchParams(window.location.search);
-      const accessToken = params.get('access_token');
+      try {
+        // Exchange the httpOnly cookie for an access token
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/google/exchange-token`, {
+          method: 'POST',
+          credentials: 'include',
+        });
+        const data = await res.json();
 
-      if (accessToken) {        
-        // Log in the user inside React context state
-        const user = await loginWithToken(accessToken);
-        if (user) {
-          addToast(`Welcome back, ${user.name}!`, 'success');
-          navigate('/events');
+        if (data.success && data.access_token) {
+          const user = await loginWithToken(data.access_token);
+          if (user) {
+            addToast(`Welcome back, ${user.name}!`, 'success');
+            navigate('/events');
+          } else {
+            addToast('Failed to retrieve user profile.', 'error');
+            navigate('/login');
+          }
         } else {
-          addToast('Failed to retrieve user profile.', 'error');
+          addToast('Authentication failed.', 'error');
           navigate('/login');
         }
-      } else {
+      } catch (err) {
+        console.error('OAuth callback error:', err);
         addToast('Authentication failed.', 'error');
         navigate('/login');
       }

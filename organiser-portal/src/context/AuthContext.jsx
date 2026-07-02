@@ -46,10 +46,10 @@ export const AuthProvider = ({ children }) => {
         });
         const meData = await meRes.json();
         if (meData.success) {
-          if (meData.user.role === 'student') {
+          if (meData.user.role === 'organiser') {
             setUser(meData.user);
           } else {
-            // Organiser accounts cannot access the student portal
+            console.error('Session restore failed: User is not an organiser');
             clearToken();
             setUser(null);
           }
@@ -69,19 +69,19 @@ export const AuthProvider = ({ children }) => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
-      body: JSON.stringify({ email, password, type, requiredRole: 'student' }),
+      body: JSON.stringify({ email, password, type, requiredRole: 'organiser' }),
     });
 
     const data = await res.json();
 
     if (data.success) {
-      if (data.user.role !== 'student') {
-        return 'Access denied. This account is not registered as a student. Please use the organiser portal.';
+      if (data.user.role !== 'organiser') {
+        return 'Access denied. You are not registered as an organiser.';
       }
       refreshPromise = null;
       setToken(data.access_token);
       setUser(data.user);
-      navigate(redirectTo || '/events');
+      navigate(redirectTo || '/');
       return null;
     }
 
@@ -128,14 +128,14 @@ export const AuthProvider = ({ children }) => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
-      body: JSON.stringify({ name, email, password, role: 'student' }),
+      body: JSON.stringify({ name, email, password, role: 'organiser' }),
     });
     const data = await res.json();
 
     if (res.ok && data.success) {
       const loginErr = await login(email, password, undefined, redirectTo);
       if (!loginErr) {
-        navigate(redirectTo || '/events');
+        navigate(redirectTo || '/');
         return null;
       }
     }
@@ -170,8 +170,13 @@ export const AuthProvider = ({ children }) => {
       });
       const meData = await meRes.json();
       if (meData.success) {
-        setUser(meData.user);
-        return meData.user;
+        if (meData.user.role === 'organiser') {
+          setUser(meData.user);
+          return meData.user;
+        } else {
+          clearToken();
+          setUser(null);
+        }
       }
     } catch (err) {
       console.error('Failed to login with token:', err);
